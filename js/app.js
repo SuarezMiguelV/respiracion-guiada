@@ -14,7 +14,13 @@ import {
   setBreathingSoundVolume,
   primeBreathingAudio
 } from "./audio.js";
-import { saveCompletedSession, listCompletedSessions } from "./session-store.js";
+import {
+  saveCompletedSession,
+  listCompletedSessions,
+  queueCompletedSession,
+  syncPendingSessions,
+  getPendingSessionCount
+} from "./session-store.js";
 import {
   firebaseConfigured,
   registerUser,
@@ -147,6 +153,8 @@ const summaryBest = $("#summaryBest");
 const retentionList = $("#retentionList");
 const newSessionBtn = $("#newSessionBtn");
 const saveStatus = $("#saveStatus");
+const connectionStatus = $("#connectionStatus");
+const pendingSyncCount = $("#pendingSyncCount");
 
 let activeConfig = null;
 let currentUser = null;
@@ -731,22 +739,35 @@ const engine = new SessionEngine({
     saveStatus.textContent = "Guardando sesión…";
     saveStatus.className = "save-status";
 
-    try {
-      await saveCompletedSession({
-        userId: currentUser.uid,
-        startedAt: sessionStartedAt,
-        endedAt: new Date(),
-        config,
-        retentions
-      });
+    const sessionPayload = {
+      userId: currentUser.uid,
+      startedAt: sessionStartedAt,
+      endedAt: new Date(),
+      config,
+      retentions
+    };
 
+    try {
+      await saveCompletedSession(sessionPayload);
       saveStatus.textContent = "Sesión guardada en tu historial.";
       saveStatus.className = "save-status success";
     } catch (error) {
-      console.error("Error al guardar sesión:", error);
-      saveStatus.textContent = "La sesión terminó, pero no se pudo guardar en Firestore.";
-      saveStatus.className = "save-status error";
+      console.warn("Guardado inmediato no disponible:", error);
+
+      try {
+        queueCompletedSession(sessionPayload);
+        saveStatus.textContent = navigator.onLine
+          ? "Sesión guardada localmente; se reintentará la sincronización."
+          : "Sin conexión: sesión guardada en este dispositivo.";
+        saveStatus.className = "save-status success";
+      } catch (queueError) {
+        console.error("No se pudo guardar localmente:", queueError);
+        saveStatus.textContent = "La sesión terminó, pero no fue posible guardar el resultado.";
+        saveStatus.className = "save-status error";
+      }
     }
+
+    updateConnectionUi();
   },
 
   onStopped() {
@@ -862,6 +883,15 @@ if (!firebaseConfigured) {
   setAuthBusy(true);
 }
 
+window.addEventListener("online", () => {
+  updateConnectionUi();
+  trySyncPendingSessions();
+});
+
+window.addEventListener("offline", updateConnectionUi);
+
+updateConnectionUi();
+
 watchAuth(async user => {
   currentUser = user;
 
@@ -879,6 +909,8 @@ watchAuth(async user => {
     renderUserBar(user, currentProfile);
     applyUserPreferences(currentProfile.preferences);
     showView(setupView);
+    updateConnectionUi();
+    trySyncPendingSessions();
   } catch (error) {
     currentProfile = null;
     setAuthMessage(friendlyAuthError(error));

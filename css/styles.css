@@ -1030,3 +1030,19 @@ input[type="checkbox"] {
 @media (display-mode:standalone){body{min-height:100svh}}
 @media (max-width:640px){.user-bar{flex-wrap:wrap;gap:8px}.user-bar .secondary-btn,.user-bar .text-btn{min-height:40px}.history-header{gap:10px}.history-header .secondary-btn{min-height:40px}.settings-card,.card{max-width:100%}.session-audio-settings-btn,.audio-settings-btn{min-height:40px;padding-left:15px;padding-right:15px}input[type="range"]{min-height:30px}select,input[type="email"],input[type="password"],input[type="text"],button{font-size:16px}}
 @media (max-width:480px){.update-banner{align-items:stretch;flex-direction:column;gap:9px}.update-banner-actions{width:100%}.update-primary-btn,.update-dismiss-btn{flex:1}.history-summary-grid{grid-template-columns:1fr 1fr;gap:9px}.history-stat-card{padding:13px}.history-stat-card strong{font-size:1.15rem}.chart-wrap{height:240px;min-height:240px}.session-volume-row{grid-template-columns:74px minmax(80px,1fr) 42px}}
+
+
+/* ===== V2.17 · Offline y sincronización ===== */
+.connection-strip {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:7px;
+  min-height:20px;
+  margin:2px auto 0;
+  font-size:.68rem;
+}
+.connection-status { color:#9bcba9; }
+.connection-status.offline { color:#ffd39a; }
+.pending-sync-count { color:#a8c8ef; }
+.pending-sync-count:empty { display:none; }

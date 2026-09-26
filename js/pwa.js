@@ -1,4 +1,4 @@
-const APP_VERSION = "2.16";
+const APP_VERSION = "2.17";
 
 let deferredInstallPrompt = null;
 let swRegistration = null;

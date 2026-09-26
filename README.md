@@ -1,4 +1,4 @@
-# Respiración Guiada — V2.16
+# Respiración Guiada — V2.17
 
 Primera versión funcional del motor de sesión.
 
@@ -590,3 +590,23 @@ Publicar V2.15 en GitHub Pages y probar la instalación desde computadora y tel�
 - Mejoras responsive, touch targets, safe areas, historial y gráficas en móvil.
 
 Después de validarla localmente, conserva tu `js/firebase-config.js` real, haz commit/push y abre la PWA instalada para probar el flujo de actualización.
+
+
+## Cambios V2.17 — Modo offline y sincronización pendiente
+
+- Si Firestore no responde al terminar una sesión, el resultado se guarda localmente.
+- La app muestra `Sin conexión` y el número de sesiones pendientes.
+- Al volver Internet intenta sincronizarlas automáticamente.
+- Cada sesión usa un identificador estable para evitar duplicados en los reintentos.
+- También se intenta sincronizar al iniciar sesión.
+- El historial completo continúa viniendo de Firestore.
+
+### Prueba recomendada
+1. Publica V2.17.
+2. Desde la PWA V2.16 espera el aviso de nueva versión.
+3. Pulsa Actualizar y confirma v2.17.
+4. Inicia una sesión de prueba.
+5. Desconecta Internet antes de terminarla.
+6. Termínala y confirma que aparece como pendiente.
+7. Reactiva Internet.
+8. Comprueba que se sincronice y aparezca en Firebase.

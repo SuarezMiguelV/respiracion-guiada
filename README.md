@@ -1,4 +1,4 @@
-# Respiración Guiada — V2.15
+# Respiración Guiada — V2.16
 
 Primera versión funcional del motor de sesión.
 
@@ -575,3 +575,18 @@ No funcionará correctamente abriendo `index.html` directamente con `file://`.
 ### Siguiente etapa recomendada
 
 Publicar V2.15 en GitHub Pages y probar la instalación desde computadora y teléfono.
+
+
+## Cambios V2.16 — Actualizaciones PWA y experiencia móvil
+
+- Aviso “Hay una nueva versión disponible”.
+- Botones “Actualizar” y “Después”.
+- La actualización no interrumpe automáticamente una sesión activa.
+- Cada versión usa su propio caché y elimina caches anteriores al activarse.
+- `js/pwa.js` forma parte del app shell.
+- La navegación usa red primero para detectar publicaciones nuevas.
+- Firebase no es interceptado por el Service Worker.
+- La interfaz muestra discretamente `v2.16`.
+- Mejoras responsive, touch targets, safe areas, historial y gráficas en móvil.
+
+Después de validarla localmente, conserva tu `js/firebase-config.js` real, haz commit/push y abre la PWA instalada para probar el flujo de actualización.

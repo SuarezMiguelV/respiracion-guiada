@@ -1016,3 +1016,17 @@ input[type="checkbox"] {
 .install-status:empty {
   display: none;
 }
+
+
+/* ===== V2.16 · Actualizaciones PWA y experiencia móvil ===== */
+.update-banner{position:fixed;z-index:9999;left:50%;top:max(12px,env(safe-area-inset-top));transform:translateX(-50%);width:min(calc(100% - 24px),620px);display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 12px 11px 15px;border:1px solid rgba(176,214,255,.24);border-radius:14px;background:rgba(6,22,47,.96);box-shadow:0 12px 34px rgba(0,0,0,.28);backdrop-filter:blur(12px);color:#eef7ff;font-size:.86rem}
+.update-banner.hidden{display:none}
+.update-banner-actions{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.update-primary-btn,.update-dismiss-btn{min-height:36px;border-radius:10px;padding:7px 11px;font:inherit;font-size:.78rem;font-weight:800;cursor:pointer}
+.update-primary-btn{border:1px solid rgba(174,217,255,.34);background:rgba(85,151,239,.22);color:#f3f9ff}
+.update-dismiss-btn{border:1px solid rgba(174,217,255,.12);background:transparent;color:#a9c6e8}
+.app-version{margin:4px auto 8px;text-align:center;color:rgba(157,188,225,.62);font-size:.68rem;letter-spacing:.04em}
+@supports (padding:max(0px)){body{padding-left:max(0px,env(safe-area-inset-left));padding-right:max(0px,env(safe-area-inset-right));padding-bottom:max(0px,env(safe-area-inset-bottom))}}
+@media (display-mode:standalone){body{min-height:100svh}}
+@media (max-width:640px){.user-bar{flex-wrap:wrap;gap:8px}.user-bar .secondary-btn,.user-bar .text-btn{min-height:40px}.history-header{gap:10px}.history-header .secondary-btn{min-height:40px}.settings-card,.card{max-width:100%}.session-audio-settings-btn,.audio-settings-btn{min-height:40px;padding-left:15px;padding-right:15px}input[type="range"]{min-height:30px}select,input[type="email"],input[type="password"],input[type="text"],button{font-size:16px}}
+@media (max-width:480px){.update-banner{align-items:stretch;flex-direction:column;gap:9px}.update-banner-actions{width:100%}.update-primary-btn,.update-dismiss-btn{flex:1}.history-summary-grid{grid-template-columns:1fr 1fr;gap:9px}.history-stat-card{padding:13px}.history-stat-card strong{font-size:1.15rem}.chart-wrap{height:240px;min-height:240px}.session-volume-row{grid-template-columns:74px minmax(80px,1fr) 42px}}

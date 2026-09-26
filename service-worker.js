@@ -1,4 +1,5 @@
-const CACHE_VERSION = "respiracion-guiada-v2.15";
+const APP_VERSION = "2.16";
+const CACHE_VERSION = `respiracion-guiada-v${APP_VERSION}`;
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -14,6 +15,7 @@ const APP_SHELL = [
   "./js/audio.js",
   "./js/utils.js",
   "./js/session-store.js",
+  "./js/pwa.js",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
@@ -21,34 +23,34 @@ const APP_SHELL = [
 
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(APP_SHELL_CACHE)
-      .then(cache => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
+    caches.open(APP_SHELL_CACHE).then(cache => cache.addAll(APP_SHELL))
   );
 });
 
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys()
-      .then(keys =>
-        Promise.all(
-          keys
-            .filter(key => ![APP_SHELL_CACHE, RUNTIME_CACHE].includes(key))
-            .map(key => caches.delete(key))
-        )
-      )
+      .then(keys => Promise.all(
+        keys
+          .filter(key => ![APP_SHELL_CACHE, RUNTIME_CACHE].includes(key))
+          .map(key => caches.delete(key))
+      ))
       .then(() => self.clients.claim())
   );
 });
 
+self.addEventListener("message", event => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener("fetch", event => {
   const request = event.request;
-
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
 
-  // No interferimos con las conexiones dinámicas de Firebase/Firestore.
   if (
     url.hostname.includes("googleapis.com") ||
     url.hostname.includes("firebaseio.com") ||
@@ -60,7 +62,6 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  // Navegación: red primero, index.html como fallback.
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
@@ -69,22 +70,15 @@ self.addEventListener("fetch", event => {
           caches.open(RUNTIME_CACHE).then(cache => cache.put(request, clone));
           return response;
         })
-        .catch(async () => {
-          return (
-            (await caches.match(request)) ||
-            (await caches.match("./index.html"))
-          );
-        })
+        .catch(async () => (await caches.match(request)) || (await caches.match("./index.html")))
     );
     return;
   }
 
-  // Recursos locales: cache first.
   if (url.origin === self.location.origin) {
     event.respondWith(
       caches.match(request).then(cached => {
         if (cached) return cached;
-
         return fetch(request).then(response => {
           if (response && response.ok) {
             const clone = response.clone();
@@ -97,19 +91,17 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  // CDN (Firebase SDK, Chart.js): stale-while-revalidate.
   event.respondWith(
     caches.match(request).then(cached => {
       const network = fetch(request)
         .then(response => {
-          if (response) {
+          if (response && response.ok) {
             const clone = response.clone();
             caches.open(RUNTIME_CACHE).then(cache => cache.put(request, clone));
           }
           return response;
         })
         .catch(() => cached);
-
       return cached || network;
     })
   );

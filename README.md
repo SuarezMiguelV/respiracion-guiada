@@ -1,0 +1,577 @@
+# Respiración Guiada — V2.15
+
+Primera versión funcional del motor de sesión.
+
+## Incluye
+- Advertencia de seguridad.
+- Configuración de 30/40/50/60 respiraciones.
+- Configuración de 4 a 10 vueltas.
+- Ritmo lento, normal y rápido.
+- Guía de voz del navegador.
+- Animación de inhalación/exhalación.
+- Cronómetro de retención ascendente.
+- Botón para terminar la retención.
+- Recuperación automática de 15 segundos.
+- Inicio automático de la siguiente vuelta.
+- Resumen final con retención por vuelta, promedio y mayor retención.
+
+## Cómo abrir
+
+Debido a que JavaScript usa módulos ES, abre la carpeta con VS Code y usa Live Server.
+
+1. Abre la carpeta `respiracion-guiada-v1` en VS Code.
+2. Abre `index.html`.
+3. Haz clic en `Go Live`.
+4. Abre la dirección local que muestre Live Server.
+
+## Siguiente etapa
+- Pausar/reanudar sesión.
+- Configuración personalizada de ritmo.
+- Sonidos ambientales.
+- Mejorar voz y sincronización.
+- Guardado local.
+- Firebase.
+- Gráficas.
+- PWA.
+
+## Modo de prueba rápido
+
+Para no esperar una sesión completa durante el desarrollo, agrega `?test=1` a la URL de Live Server.
+
+Ejemplo:
+`http://127.0.0.1:5500/index.html?test=1`
+
+Esto habilita temporalmente:
+- 3 respiraciones
+- 2 vueltas
+- ritmo rápido
+
+Las opciones normales permanecen sin cambios cuando abres la app sin `?test=1`.
+
+
+## Cambios V1.1
+- Cuenta regresiva inicial 3, 2, 1, COMIENZA.
+- Pausa inicial para evitar que la primera instrucción de voz quede cortada.
+- Mayor contraste visual del círculo, especialmente al exhalar.
+- Ritmos ajustados:
+  - Más lento: 3.2 s inhalar + 3.2 s exhalar
+  - Lento: 2.6 s + 2.6 s
+  - Normal: 2.0 s + 2.0 s
+  - Rápido: 1.5 s + 1.5 s
+- Temporización interna basada en `performance.now()` para reducir desviaciones de los temporizadores.
+
+
+## Cambios V1.2
+- Se agregó un margen de 1.5 segundos para activar y escuchar las instrucciones de transición.
+- "Prepárate" ahora tiene tiempo suficiente antes de iniciar la cuenta regresiva.
+- "Comienza" termina antes de iniciar la primera respiración.
+- La fase de retención muestra la pantalla primero, reproduce la instrucción y después inicia el cronómetro.
+- La recuperación reproduce "Inhala profundamente y mantén" antes de comenzar los 15 segundos.
+- Se evita cancelar automáticamente una instrucción hablada al iniciar la siguiente.
+- Los ritmos de respiración de V1.1 no fueron modificados.
+
+
+## Cambios V1.3
+- Rediseño visual en paleta azul con fondo azul noche y círculos concéntricos inspirados en la referencia compartida.
+- Mejor sincronización de voz y animación: las instrucciones de respiración ahora interrumpen la cola anterior para mantenerse alineadas con la fase visual actual.
+- En la última respiración antes de la retención se muestra y se anuncia “ÚLTIMA”.
+- Al terminar la recuperación de 15 segundos se muestra y se dice “¡SUELTA!”.
+- Se mantienen los ritmos de respiración definidos en V1.1 y V1.2.
+
+
+## Cambios V1.4
+- La respiración utiliza ahora un solo círculo/halo continuo: ya no cambia el fondo ni parece cambiar de imagen entre fases.
+- El mismo degradado azul, de claro a oscuro, se mueve como una unidad mediante expansión/contracción.
+- INHALA contrae el halo.
+- EXHALA expande el halo.
+- Se eliminan los círculos concéntricos superpuestos durante la respiración.
+- Se agrega un interruptor de Sonido en la barra superior de la sesión.
+- El sonido puede activarse o desactivarse en cualquier momento.
+- El interruptor de la sesión y la opción de guía de voz de configuración permanecen sincronizados.
+- El control de sonido queda preparado para gobernar también música y sonidos ambientales en una versión posterior.
+
+
+## Cambios V1.5
+- INHALA ahora expande el círculo/halo.
+- EXHALA ahora contrae el círculo/halo.
+- Se mantiene el mismo degradado azul continuo, tiempos, voz y control de sonido.
+
+
+## Cambios V1.6
+- Después de decir “Prepárate”, la espera se reduce únicamente a 0.8 segundos.
+- Todas las demás transiciones mantienen sus tiempos anteriores.
+- “Suelta” se pronuncia más lentamente (rate 0.58) y ligeramente más grave.
+- Se amplía la pausa posterior a “Suelta” para permitir que la frase termine de escucharse con calma.
+- La arquitectura queda preparada para agregar más adelante estilos de voz configurables.
+
+
+## Cambios V1.7
+- En la última respiración, la voz dice únicamente “Última”.
+- Ya no se pronuncia “Inhala” junto con “Última”; la indicación INHALA permanece solamente en pantalla.
+- Después de “Suelta” ya no se dice ni se muestra “Exhala”.
+- Si quedan vueltas pendientes, la transición dice únicamente “Prepárate para la siguiente vuelta”.
+
+
+## Cambios V1.8
+- Se elimina la voz “Prepárate para la siguiente vuelta” después de la recuperación.
+- La transición entre recuperación y la siguiente vuelta queda silenciosa.
+- Se agrega una opción independiente “Sonido de respiración”.
+- Se agrega un control de “Respiración” durante la sesión para activarlo o desactivarlo en cualquier momento.
+- La guía de voz y el sonido de respiración quedan como controles separados.
+- Se crea `js/audio.js` para preparar la integración posterior de sonidos reales de inhalación y exhalación.
+- En esta versión la opción de respiración es funcional como configuración/estado, pero los archivos de audio reales se agregarán en una etapa posterior.
+
+
+## Cambios V1.9
+- El cronómetro de retención empieza en el mismo instante en que comienza la indicación hablada “Retención”.
+- Se elimina la espera previa de 1.5 segundos antes de iniciar el cronómetro de retención.
+- “Suelta” ahora se reproduce con `rate 0.40`.
+- Se mantiene `pitch 0.92` para que suene ligeramente más grave.
+
+
+## Base oficial V2.2
+V2.2 toma como referencia exacta funcional la versión V1.9.
+
+No se realizaron cambios en:
+- lógica de sesión;
+- tiempos;
+- animación;
+- audio;
+- retención;
+- recuperación;
+- controles;
+- interfaz.
+
+El único cambio es la identificación documental de la versión.
+
+
+## Cambios V2.3 — Usuarios y Firebase Authentication
+
+La sesión de respiración conserva el comportamiento de V2.2.
+
+Se agregó:
+
+- Crear usuario con nombre, correo y contraseña.
+- Iniciar sesión.
+- Cerrar sesión.
+- Perfil básico guardado en Firestore.
+- Todos los usuarios tienen exactamente las mismas opciones de respiración.
+- Rol opcional `admin`.
+- Panel de administración en modo lectura para consultar perfiles registrados.
+- Reglas de Firestore incluidas en `firestore.rules`.
+
+### 1. Crear/conectar Firebase
+
+Puedes usar un proyecto Firebase nuevo para esta aplicación.
+
+En Firebase Console:
+
+1. Crea o abre el proyecto.
+2. Project settings → Your apps → agrega una Web App.
+3. Copia `firebaseConfig`.
+4. Pégalo en `js/firebase-config.js`.
+
+### 2. Authentication
+
+Firebase Console → Authentication → Sign-in method:
+
+Activa **Email/Password**.
+
+### 3. Firestore
+
+Crea Firestore Database.
+
+Después publica las reglas incluidas en:
+
+`firestore.rules`
+
+### 4. Crear tu cuenta
+
+Abre la aplicación con Live Server.
+
+Selecciona:
+
+`Crear usuario`
+
+y registra nombre, correo y contraseña.
+
+### 5. Convertir tu cuenta en administrador (opcional)
+
+Todos los usuarios se crean inicialmente como:
+
+`role: "user"`
+
+Para practicar administración, después de crear tu cuenta:
+
+1. Firebase Console → Firestore.
+2. Abre `users`.
+3. Abre tu documento de usuario.
+4. Cambia el campo `role` de:
+   `user`
+   a:
+   `admin`
+5. Cierra sesión y vuelve a entrar.
+
+Aparecerá el botón **Usuarios**.
+
+El panel admin es deliberadamente de solo lectura en esta versión. No permite eliminar cuentas de Authentication desde el navegador.
+
+### Nota sobre seguridad
+
+No pongas claves de Service Account, contraseñas ni secretos privados en GitHub.
+
+La configuración `firebaseConfig` de una aplicación web se utiliza del lado cliente. La protección de datos se realiza mediante Firebase Authentication y Firestore Security Rules.
+
+
+## Cambios V2.4
+- Se conserva la integración de usuarios y Firebase preparada en V2.3.
+- Al terminar la última vuelta, después de “Suelta”, la aplicación cambia al Resumen.
+- Sobre la pantalla Resumen se reproduce un mensaje final relajado:
+  “Regresa a la normalidad moviéndote poco a poco. Comienza con tus manos y pies. Ten un buen día y una buena vida.”
+- El mensaje final usa una velocidad de voz más pausada (`rate 0.72`) y tono ligeramente más grave (`pitch 0.94`).
+- Se usa `interrupt:false` para no cortar “Suelta” si todavía está terminando.
+
+
+## Cambios V2.5 — Guardado de sesiones
+
+Cada sesión completada se guarda automáticamente en Firestore en:
+
+`users/{uid}/sessions/{sessionId}`
+
+Se almacenan:
+- fecha y hora de inicio;
+- fecha y hora de finalización;
+- duración total;
+- respiraciones por vuelta;
+- vueltas programadas;
+- vueltas completadas;
+- ritmo seleccionado;
+- estado de voz;
+- estado del sonido de respiración;
+- tiempos de retención;
+- promedio de retención;
+- mejor retención.
+
+El Resumen muestra si la sesión se guardó correctamente.
+
+### Importante
+
+Actualiza en Firebase las reglas usando el nuevo archivo `firestore.rules`.
+
+Si ya configuraste Firebase en tu V2.4 local, copia tu archivo real:
+
+`js/firebase-config.js`
+
+de V2.4 hacia V2.5.
+
+
+## Cambios V2.6 — Historial y progreso básico
+- Historial por usuario desde Firestore.
+- Total de sesiones.
+- Mejor retención histórica.
+- Promedio general de retenciones.
+- Tiempo total practicado.
+- Lista de sesiones de más reciente a más antigua.
+- Detalle de cada sesión y retenciones por vuelta.
+- No requiere nuevas reglas respecto a V2.5.
+- Las gráficas quedan para V2.7.
+
+
+## Cambios V2.7 — Estadísticas y gráficas
+
+Se amplió Historial con:
+- sesiones realizadas en los últimos 7 días;
+- vueltas acumuladas;
+- gráfica de evolución por sesión:
+  - retención promedio;
+  - mejor retención;
+- gráfica de promedio histórico de retención por vuelta.
+
+Las gráficas usan Chart.js 4.4.7 por CDN.
+
+No se modificaron:
+- motor de respiración;
+- voz;
+- temporización;
+- reglas de Firestore;
+- estructura de guardado de sesiones.
+
+### Firebase
+
+No requiere publicar reglas nuevas respecto a V2.5/V2.6.
+
+### Configuración
+
+Como en las versiones anteriores, copia tu archivo real:
+`js/firebase-config.js`
+de tu V2.6 local a V2.7 antes de probar.
+
+
+## Cambios V2.8 — Preferencias por usuario
+
+Cada usuario conserva automáticamente en Firestore:
+- respiraciones por vuelta;
+- número de vueltas;
+- ritmo;
+- guía de voz activada/desactivada;
+- sonido de respiración activado/desactivado.
+
+Se guardan dentro del documento:
+`users/{uid}`
+
+Campos principales:
+`preferences.breaths`
+`preferences.rounds`
+`preferences.pace`
+`preferences.voice`
+`preferences.breathingSound`
+`preferencesUpdatedAt`
+
+Los usuarios creados antes de V2.8 reciben automáticamente las preferencias predeterminadas al iniciar sesión por primera vez con esta versión.
+
+El guardado utiliza una espera breve de 350 ms para evitar escrituras innecesarias cuando se modifican controles.
+
+`?test=1` no guarda 3 respiraciones / 2 vueltas / ritmo rápido como preferencias personales.
+
+### Firebase Rules
+
+No es necesario modificar ni volver a publicar las reglas de V2.7.
+Las reglas existentes ya permiten al propietario actualizar su documento sin cambiar su rol.
+
+### Configuración
+
+Copia tu archivo real:
+`js/firebase-config.js`
+
+desde tu V2.7 local hacia V2.8 antes de probar.
+
+
+## Cambios V2.9 — Audio de respiración real
+
+El interruptor "Sonido de respiración" ya funciona.
+
+Características:
+- sonido suave de inhalación;
+- sonido suave de exhalación;
+- sincronización con la duración real de cada fase;
+- funciona en todos los ritmos;
+- control de volumen de 0 a 100%;
+- volumen independiente de la guía de voz;
+- activación/desactivación durante la sesión;
+- el sonido se detiene inmediatamente si se desactiva o se finaliza la sesión;
+- volumen guardado como preferencia del usuario en Firestore.
+
+El audio se genera localmente en el navegador con Web Audio API.
+No usa MP3, WAV ni servicios externos.
+
+Preferencia nueva:
+`preferences.breathingSoundVolume`
+
+Valor predeterminado:
+`0.35` (35%).
+
+### Firebase Rules
+
+No es necesario cambiar ni volver a publicar las reglas.
+El nuevo valor se almacena dentro del mismo objeto `preferences`.
+
+### Configuración
+
+Copia tu archivo real:
+`js/firebase-config.js`
+
+desde tu V2.8 local hacia V2.9 antes de probar.
+
+### Prueba recomendada
+
+1. Activa Sonido de respiración.
+2. Deja el volumen en 35%.
+3. Prueba primero con `?test=1`.
+4. Comprueba que INHALA y EXHALA tengan sonidos diferentes.
+5. Cambia el volumen y verifica que se conserve al cerrar sesión y volver a entrar.
+
+
+## Cambios V2.10 — Control de volumen de voz y respiración
+
+Se agregó:
+- control de volumen para la guía de voz;
+- control independiente para el sonido de respiración;
+- ambos controles en Configurar sesión;
+- ambos controles también dentro de la pantalla de respiración INHALA / EXHALA;
+- sincronización bidireccional:
+  - cambiar el volumen antes de iniciar actualiza el control de sesión;
+  - cambiarlo durante la sesión actualiza la preferencia;
+- volumen de guía de voz guardado en Firestore;
+- volumen de respiración continúa guardándose como en V2.9.
+
+Nueva preferencia:
+`preferences.voiceVolume`
+
+Valor predeterminado:
+`1.0` (100%), para conservar exactamente el volumen de voz de versiones anteriores.
+
+El volumen de voz utiliza la propiedad `volume` de `SpeechSynthesisUtterance`.
+
+### Firebase Rules
+
+No hace falta cambiar ni volver a publicar las reglas.
+
+### Configuración
+
+Copia tu `js/firebase-config.js` real de V2.9 a V2.10.
+
+### Prueba recomendada
+
+1. Configura voz al 70% y respiración al 35%.
+2. Inicia `?test=1`.
+3. Durante INHALA / EXHALA cambia ambos volúmenes.
+4. Comprueba que el efecto sea inmediato.
+5. Cierra sesión y vuelve a entrar para confirmar que los valores quedaron guardados.
+
+
+## Cambios V2.11
+
+### Interfaz de audio más limpia
+Los controles de volumen de voz y respiración quedan ocultos detrás de un botón `Volumen`.
+
+- En configuración: botón Volumen.
+- En INHALA / EXHALA: botón Volumen.
+- Al iniciar una sesión el panel comienza cerrado.
+- Los sliders siguen sincronizados y sus valores continúan guardándose en Firestore.
+
+### Sonido de respiración refinado
+Se redujo el carácter artificial del sonido generado por Web Audio API:
+- ruido mucho más suavizado;
+- menos frecuencias agudas;
+- filtros de aire en varias etapas;
+- inhalación gradual;
+- exhalación más cálida;
+- nivel base ligeramente menor.
+
+### Conteo de la voz
+La guía ya no dice el número en cada respiración.
+
+Ejemplo para 40 respiraciones:
+- 1–9: "Inhala"
+- 10: "10, inhala"
+- 11–19: "Inhala"
+- 20: "20, inhala"
+- 21–29: "Inhala"
+- 30: "30, inhala"
+- 31–39: "Inhala"
+- 40: "Última"
+
+"Exhala" se conserva en cada ciclo.
+
+No requiere cambios de reglas de Firebase.
+
+
+## Cambios V2.12 — Mayor volumen de respiración
+
+Se incrementó el nivel real del sonido de inhalación y exhalación.
+
+- El control continúa de 0 a 100%.
+- Los porcentajes guardados en Firestore no cambian.
+- 35% ahora suena más fuerte que en V2.11.
+- 100% tiene aproximadamente 65% más margen acústico que V2.11.
+- No se modificó el volumen de la guía de voz.
+- No se modificaron tiempos, conteos, retención, recuperación, historial ni Firebase.
+
+No requiere cambios en Firestore Rules.
+
+
+## Cambios V2.13 — Respiración con mayor presencia
+
+Se aumentó de forma considerable la ganancia real del sonido de inhalación y exhalación.
+
+- V2.12: multiplicador máximo 0.24
+- V2.13: multiplicador máximo 0.50
+- Aumento aproximado del 108% respecto a V2.12
+- El control visual continúa de 0 a 100%
+- Las preferencias guardadas en Firestore no cambian
+- La guía de voz no fue modificada
+- No se modificaron tiempos, retención, recuperación, historial, gráficas ni Firebase
+
+Recomendación inicial:
+probar entre 40% y 70% antes de usar 100%.
+
+
+## Cambios V2.14 — Voz relajante
+
+Antes de continuar con PWA se mejoró la guía de voz.
+
+### Selección automática
+La opción predeterminada es `Automática · relajante`.
+
+La aplicación:
+1. busca voces en español disponibles en el navegador/sistema;
+2. si existen voces identificadas como Natural, Neural, Online, Premium o Enhanced, prioriza ese grupo;
+3. dentro de ese grupo da preferencia a español de México y Latinoamérica;
+4. si no hay una voz natural, selecciona la mejor voz española disponible.
+
+La voz exacta depende del sistema operativo y del navegador.
+
+### Selector manual
+Dentro del botón `Volumen` se agregó:
+- selector `Voz de la guía`;
+- indicador de cuál voz está eligiendo el modo automático;
+- botón `Probar voz`.
+
+La selección queda guardada en `preferences.voiceName`.
+
+Si una voz elegida no existe en otro equipo, la app vuelve automáticamente a `Automática · relajante`.
+
+### Carácter de la voz
+Para frases normales:
+- velocidad global ligeramente más tranquila: 92% de la anterior;
+- tono ligeramente más suave: 96% del anterior.
+
+Las frases que ya tenían una velocidad especial muy lenta, como `Suelta`, conservan su velocidad configurada.
+
+No se modificaron respiraciones, tiempos, retención, recuperación, sonido de respiración, historial, gráficas ni reglas de Firebase.
+
+La PWA queda como siguiente etapa después de validar esta voz.
+
+
+## Cambios V2.15 — PWA instalable
+
+La aplicación ahora incluye:
+- `manifest.webmanifest`;
+- iconos PNG de 192x192 y 512x512;
+- `service-worker.js`;
+- registro de Service Worker;
+- botón `Instalar app` cuando el navegador expone el evento de instalación;
+- modo `standalone` al instalarse;
+- colores de tema para navegador/sistema;
+- caché del shell local de la aplicación;
+- caché de recursos de CDN tras usarlos al menos una vez.
+
+### Importante sobre Firebase y modo sin conexión
+
+La PWA puede conservar y cargar la interfaz básica después de una primera visita, pero:
+- Authentication necesita conexión para determinados flujos;
+- Firestore necesita conexión para sincronizar cambios;
+- el historial y preferencias dependen de Firebase.
+
+Por eso esta versión no promete funcionamiento completo de sesiones y datos cuando el equipo está totalmente desconectado.
+
+### Requisitos para instalar
+
+La PWA debe ejecutarse desde:
+- `localhost` / Live Server para pruebas; o
+- un sitio servido por HTTPS, por ejemplo GitHub Pages.
+
+No funcionará correctamente abriendo `index.html` directamente con `file://`.
+
+### Prueba en computadora
+
+1. Copia tu `js/firebase-config.js` real de V2.14 a V2.15.
+2. Abre V2.15 con Live Server.
+3. Recarga una vez.
+4. Si Chrome/Edge considera la app instalable, aparecerá `Instalar app`.
+5. Pulsa el botón y acepta la instalación.
+6. La aplicación deberá abrir en una ventana independiente.
+
+### Siguiente etapa recomendada
+
+Publicar V2.15 en GitHub Pages y probar la instalación desde computadora y teléfono.

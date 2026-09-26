@@ -1,0 +1,25 @@
+{
+  "name": "Respiración Guiada",
+  "short_name": "Respira",
+  "description": "Aplicación personal de respiración guiada, retenciones, historial y progreso.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#06162f",
+  "theme_color": "#0a2348",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

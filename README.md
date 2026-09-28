@@ -1,4 +1,4 @@
-# Respiración Guiada — V2.17
+# Respiración Guiada — V2.17.1
 
 Primera versión funcional del motor de sesión.
 
@@ -610,3 +610,14 @@ Después de validarla localmente, conserva tu `js/firebase-config.js` real, haz 
 6. Termínala y confirma que aparece como pendiente.
 7. Reactiva Internet.
 8. Comprueba que se sincronice y aparezca en Firebase.
+
+
+## V2.17.1 — Corrección de autenticación / arranque
+
+Hotfix sobre V2.17.
+
+- Corrige la ausencia accidental de `updateConnectionUi()` y `trySyncPendingSessions()`.
+- Evita que JavaScript se detenga antes de registrar `watchAuth`.
+- El usuario autenticado vuelve a entrar correctamente a la aplicación.
+- Si el navegador ya está offline al terminar una sesión, se guarda directamente en la cola local.
+- No modifica Firebase Auth, credenciales, historial, voz, audio ni el motor de respiración.

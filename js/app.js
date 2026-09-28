@@ -358,6 +358,56 @@ async function loadAdminUsers() {
 }
 
 
+
+function updateConnectionUi() {
+  if (!connectionStatus || !pendingSyncCount) return;
+
+  const online = navigator.onLine;
+  connectionStatus.textContent = online ? "En línea" : "Sin conexión";
+  connectionStatus.classList.toggle("offline", !online);
+
+  const pending = currentUser ? getPendingSessionCount(currentUser.uid) : 0;
+  pendingSyncCount.textContent = pending
+    ? `${pending} pendiente${pending === 1 ? "" : "s"}`
+    : "";
+}
+
+async function trySyncPendingSessions() {
+  if (!currentUser || !navigator.onLine) {
+    updateConnectionUi();
+    return;
+  }
+
+  const pending = getPendingSessionCount(currentUser.uid);
+  if (!pending) {
+    updateConnectionUi();
+    return;
+  }
+
+  connectionStatus.textContent = "Sincronizando…";
+
+  try {
+    const result = await syncPendingSessions(
+      currentUser.uid,
+      ({ synced, total }) => {
+        connectionStatus.textContent = `Sincronizando ${synced}/${total}…`;
+      }
+    );
+
+    updateConnectionUi();
+
+    if (result.synced > 0) {
+      saveStatus.textContent = result.remaining
+        ? `${result.synced} sincronizada(s); ${result.remaining} pendiente(s).`
+        : `${result.synced} sesión(es) pendiente(s) sincronizada(s).`;
+      saveStatus.className = "save-status success";
+    }
+  } catch (error) {
+    console.warn("No fue posible sincronizar las sesiones pendientes:", error);
+    updateConnectionUi();
+  }
+}
+
 function timestampToDate(value){
   if(!value)return null;
   if(typeof value.toDate==="function")return value.toDate();
@@ -748,17 +798,21 @@ const engine = new SessionEngine({
     };
 
     try {
-      await saveCompletedSession(sessionPayload);
-      saveStatus.textContent = "Sesión guardada en tu historial.";
-      saveStatus.className = "save-status success";
+      if (!navigator.onLine) {
+        queueCompletedSession(sessionPayload);
+        saveStatus.textContent = "Sin conexión: sesión guardada en este dispositivo.";
+        saveStatus.className = "save-status success";
+      } else {
+        await saveCompletedSession(sessionPayload);
+        saveStatus.textContent = "Sesión guardada en tu historial.";
+        saveStatus.className = "save-status success";
+      }
     } catch (error) {
       console.warn("Guardado inmediato no disponible:", error);
 
       try {
         queueCompletedSession(sessionPayload);
-        saveStatus.textContent = navigator.onLine
-          ? "Sesión guardada localmente; se reintentará la sincronización."
-          : "Sin conexión: sesión guardada en este dispositivo.";
+        saveStatus.textContent = "Sesión guardada localmente; se reintentará la sincronización.";
         saveStatus.className = "save-status success";
       } catch (queueError) {
         console.error("No se pudo guardar localmente:", queueError);

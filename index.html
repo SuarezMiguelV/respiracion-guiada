@@ -34,7 +34,7 @@
           <span id="connectionStatus" class="connection-status">En línea</span>
           <span id="pendingSyncCount" class="pending-sync-count"></span>
         </div>
-        <div id="appVersion" class="app-version" aria-label="Versión de la aplicación">v2.18</div>
+        <div id="appVersion" class="app-version" aria-label="Versión de la aplicación">v2.19.3</div>
       </div>
       <div class="user-actions">
         <span id="roleBadge" class="role-badge hidden">ADMIN</span>
@@ -212,6 +212,8 @@
           <div><span>Promedio</span><strong id="detailAverage">—</strong></div>
           <div><span>Mejor retención</span><strong id="detailBest">—</strong></div>
           <div><span>Estado</span><strong id="detailStatus">—</strong></div>
+          <div><span>Preset</span><strong id="detailPreset">—</strong></div>
+          <div><span>Pausa entre vueltas</span><strong id="detailPause">—</strong></div>
         </div>
 
         <div class="retention-detail-block">
@@ -255,6 +257,33 @@
 
       <div class="card settings-card">
         <h2>Configurar sesión</h2>
+
+        <div class="preset-section" aria-labelledby="presetTitle">
+          <div class="setting-title-row">
+            <div>
+              <span id="presetTitle" class="setting-title">Sesión rápida</span>
+              <span class="setting-help">Elige una base y después puedes modificarla manualmente.</span>
+            </div>
+            <span id="customPresetChip" class="custom-preset-chip hidden">Personalizada</span>
+          </div>
+
+          <div class="preset-grid" role="group" aria-label="Presets de sesión">
+            <button type="button" class="preset-card" data-preset="soft">
+              <strong>Suave</strong>
+              <span>30 respiraciones · 4 vueltas · lento</span>
+            </button>
+            <button type="button" class="preset-card active" data-preset="normal">
+              <strong>Normal</strong>
+              <span>30 respiraciones · 4 vueltas · normal</span>
+            </button>
+            <button type="button" class="preset-card" data-preset="intense">
+              <strong>Intensa</strong>
+              <span>40 respiraciones · 5 vueltas · normal</span>
+            </button>
+          </div>
+
+          <p id="presetDescription" class="preset-description">Normal · configuración estándar.</p>
+        </div>
 
         <label for="breathCount">Respiraciones por vuelta</label>
         <select id="breathCount">
@@ -355,6 +384,24 @@
           <span id="preferencesStatus">Tus preferencias se guardan automáticamente.</span>
         </div>
 
+        <details class="advanced-session-options">
+          <summary>Opciones avanzadas</summary>
+          <div class="advanced-session-options-body">
+            <label for="interRoundPause">Pausa entre vueltas</label>
+            <select id="interRoundPause">
+              <option value="0" selected>Sin pausa adicional</option>
+              <option value="5">5 segundos</option>
+              <option value="10">10 segundos</option>
+              <option value="15">15 segundos</option>
+              <option value="30">30 segundos</option>
+            </select>
+            <p class="field-help advanced-help">
+              Se aplica después de la recuperación de 15 s y antes de comenzar la siguiente vuelta.
+              <strong>Uso recomendado: sin pausa adicional.</strong>
+            </p>
+          </div>
+        </details>
+
         <button id="startBtn" class="primary-btn" disabled>Comenzar sesión</button>
       </div>
     </section>
@@ -453,6 +500,15 @@
         <h2 id="recoveryInstruction">Inhala profundamente y mantén</h2>
         <p class="phase-hint">Al terminar, exhala y prepárate para la siguiente vuelta.</p>
       </div>
+
+      <div id="betweenRoundsPanel" class="phase-panel hidden">
+        <p class="phase-name">PAUSA ENTRE VUELTAS</p>
+        <div class="between-rounds-visual">
+          <div id="betweenRoundsTimer" class="recovery-count">10</div>
+        </div>
+        <h2 id="betweenRoundsInstruction">Descansa</h2>
+        <p id="betweenRoundsHint" class="phase-hint">Respira con normalidad antes de continuar.</p>
+      </div>
     </section>
 
     <section id="summaryView" class="view">
@@ -478,6 +534,14 @@
           <div>
             <span class="metric-label">Mayor retención</span>
             <strong id="summaryBest">00:00</strong>
+          </div>
+          <div>
+            <span class="metric-label">Preset</span>
+            <strong id="summaryPreset">Normal</strong>
+          </div>
+          <div>
+            <span class="metric-label">Pausa entre vueltas</span>
+            <strong id="summaryPause">Sin pausa</strong>
           </div>
         </div>
       </div>

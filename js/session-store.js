@@ -111,6 +111,8 @@ async function writeSession({
     plannedRounds: config.rounds,
     completedRounds: values.length,
     pace: config.pace,
+    sessionPreset: config.sessionPreset || "custom",
+    interRoundPauseSeconds: Math.max(0, Number(config.interRoundPauseSeconds) || 0),
     voiceEnabled: Boolean(config.voice),
     breathingSoundEnabled: Boolean(config.breathingSound),
     retentionsSeconds: values,

@@ -1315,3 +1315,122 @@ input[type="checkbox"] {
     min-height: calc(100dvh - 165px);
   }
 }
+
+
+/* ===== V2.19.3 · Presets + opción avanzada ===== */
+.preset-section { margin-bottom: 18px; }
+
+.setting-title-row {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+}
+
+.setting-title { display:block; color:#eef7ff; font-weight:800; }
+
+.setting-help,
+.field-help {
+  display:block;
+  margin-top:3px;
+  color:#8faed3;
+  font-size:.76rem;
+  line-height:1.45;
+}
+
+.preset-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+}
+
+.preset-card {
+  min-height:84px;
+  padding:12px 10px;
+  border:1px solid rgba(165,205,255,.16);
+  border-radius:14px;
+  background:rgba(255,255,255,.035);
+  color:#eaf5ff;
+  text-align:left;
+  cursor:pointer;
+}
+
+.preset-card strong,
+.preset-card span { display:block; }
+
+.preset-card strong { margin-bottom:6px; }
+
+.preset-card span {
+  color:#9ebadd;
+  font-size:.72rem;
+  line-height:1.35;
+}
+
+.preset-card.active {
+  border-color:rgba(111,184,255,.65);
+  background:rgba(75,143,228,.15);
+}
+
+.custom-preset-chip {
+  border:1px solid rgba(169,202,239,.18);
+  border-radius:999px;
+  padding:4px 8px;
+  background:rgba(255,255,255,.05);
+  color:#b8d1ef;
+  font-size:.68rem;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.preset-description {
+  min-height:18px;
+  margin:9px 2px 0;
+  color:#96b5da;
+  font-size:.75rem;
+}
+
+.advanced-session-options {
+  margin:16px 0 14px;
+  border:1px solid rgba(167,201,244,.12);
+  border-radius:13px;
+  background:rgba(255,255,255,.025);
+}
+
+.advanced-session-options summary {
+  padding:12px 14px;
+  color:#9ebadd;
+  font-size:.79rem;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.advanced-session-options-body { padding:0 14px 14px; }
+.advanced-help { margin:-6px 0 0; }
+.advanced-help strong { color:#bfd7f2; }
+
+.between-rounds-visual {
+  width:min(54vw,230px);
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  margin:18px auto;
+  border:1px solid rgba(139,190,255,.18);
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(79,145,229,.14),rgba(5,25,56,.22) 68%);
+  box-shadow:0 0 34px rgba(56,128,219,.12);
+}
+
+@media (max-width:680px) {
+  .preset-grid { grid-template-columns:1fr; gap:7px; }
+
+  .preset-card {
+    min-height:64px;
+    display:grid;
+    grid-template-columns:86px 1fr;
+    align-items:center;
+    gap:9px;
+  }
+
+  .preset-card strong { margin:0; }
+}

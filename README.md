@@ -1,4 +1,4 @@
-# Respiración Guiada — V2.18
+# Respiración Guiada — V2.19.3
 
 Primera versión funcional del motor de sesión.
 
@@ -663,3 +663,28 @@ No se incorpora eliminación de cuentas de otros usuarios desde el navegador por
 ### Respiración
 El motor, ritmos, voz, recuperación, retención y audio permanecen sin cambios en V2.18.
 Las nuevas funciones respiratorias se reservan para una versión posterior para no mezclar mejoras de interfaz con cambios al protocolo.
+
+
+## V2.19.3 — Presets con entorno local limpio
+
+Reconstruida directamente sobre V2.18 estable.
+
+### Cambio importante para desarrollo local
+En `localhost` y `127.0.0.1`:
+- no se registra Service Worker;
+- se eliminan Service Workers locales anteriores;
+- se eliminan caches `respiracion-guiada-v*`.
+
+Esto evita mezclar archivos de versiones anteriores al probar con Live Server.
+
+En GitHub Pages el Service Worker continúa funcionando normalmente.
+
+### Audio
+`js/speech.js` y `js/audio.js` son byte por byte iguales a V2.18.
+El bloque de inicio de sesión y sus controles de audio también conservan el flujo de V2.18.
+
+### V2.19
+- Presets Suave, Normal e Intensa.
+- Personalizada automática al modificar respiraciones, vueltas o ritmo.
+- Pausa entre vueltas al final en Opciones avanzadas.
+- Sin pausa adicional como valor predeterminado y recomendado.

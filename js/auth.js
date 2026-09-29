@@ -21,6 +21,8 @@ export const DEFAULT_PREFERENCES = Object.freeze({
   breaths: 30,
   rounds: 4,
   pace: "normal",
+  sessionPreset: "normal",
+  interRoundPauseSeconds: 0,
   voice: true,
   voiceVolume: 1.0,
   voiceName: "auto",
@@ -31,16 +33,26 @@ export const DEFAULT_PREFERENCES = Object.freeze({
 const VALID_BREATHS = new Set([30, 40, 50, 60]);
 const VALID_ROUNDS = new Set([4, 5, 6, 7, 8, 9, 10]);
 const VALID_PACES = new Set(["verySlow", "slow", "normal", "fast"]);
+const VALID_PRESETS = new Set(["soft", "normal", "intense", "custom"]);
+const VALID_INTER_ROUND_PAUSES = new Set([0, 5, 10, 15, 30]);
 
 export function normalizePreferences(preferences = {}) {
   const breaths = Number(preferences.breaths);
   const rounds = Number(preferences.rounds);
   const pace = String(preferences.pace || "");
+  const sessionPreset = String(preferences.sessionPreset || "");
+  const interRoundPauseSeconds = Number(preferences.interRoundPauseSeconds);
 
   return {
     breaths: VALID_BREATHS.has(breaths) ? breaths : DEFAULT_PREFERENCES.breaths,
     rounds: VALID_ROUNDS.has(rounds) ? rounds : DEFAULT_PREFERENCES.rounds,
     pace: VALID_PACES.has(pace) ? pace : DEFAULT_PREFERENCES.pace,
+    sessionPreset: VALID_PRESETS.has(sessionPreset)
+      ? sessionPreset
+      : DEFAULT_PREFERENCES.sessionPreset,
+    interRoundPauseSeconds: VALID_INTER_ROUND_PAUSES.has(interRoundPauseSeconds)
+      ? interRoundPauseSeconds
+      : DEFAULT_PREFERENCES.interRoundPauseSeconds,
     voice: typeof preferences.voice === "boolean"
       ? preferences.voice
       : DEFAULT_PREFERENCES.voice,

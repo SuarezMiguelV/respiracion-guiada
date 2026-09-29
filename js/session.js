@@ -88,10 +88,19 @@ export class SessionEngine {
       if (!completedRecovery || !this.isActive(token)) return;
 
       if (round < config.rounds) {
-        this.callbacks.onPreparingNextRound?.(round + 1);
-        // Sin voz en esta transición para evitar que se corte con "Suelta".
-        await this.sleepAccurate(VOICE_TRANSITION_LEAD, token);
-        if (!this.isActive(token)) return;
+        const nextRound = round + 1;
+        const pauseSeconds = Math.max(0, Number(config.interRoundPauseSeconds) || 0);
+
+        this.callbacks.onPreparingNextRound?.(nextRound);
+
+        if (pauseSeconds > 0) {
+          const completedPause = await this.runInterRoundPause(nextRound, pauseSeconds, token);
+          if (!completedPause || !this.isActive(token)) return;
+        } else {
+          // Misma transición de V2.18 cuando la pausa está desactivada.
+          await this.sleepAccurate(VOICE_TRANSITION_LEAD, token);
+          if (!this.isActive(token)) return;
+        }
       }
     }
 
@@ -221,6 +230,25 @@ export class SessionEngine {
     if (!this.isActive(token)) return false;
 
     this.callbacks.onRecoveryFinished?.();
+    return true;
+  }
+
+  async runInterRoundPause(nextRound, seconds, token) {
+    if (!this.isActive(token)) return false;
+
+    this.phase = "betweenRounds";
+    this.callbacks.onPhaseChanged?.("betweenRounds");
+    this.callbacks.onInterRoundPauseStarted?.(nextRound, seconds);
+
+    for (let remaining = seconds; remaining >= 1; remaining--) {
+      if (!this.isActive(token)) return false;
+      this.callbacks.onInterRoundPauseTick?.(remaining, nextRound);
+      await this.sleepAccurate(1000, token);
+    }
+
+    if (!this.isActive(token)) return false;
+
+    this.callbacks.onInterRoundPauseFinished?.(nextRound);
     return true;
   }
 

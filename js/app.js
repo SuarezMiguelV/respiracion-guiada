@@ -103,12 +103,18 @@ const detailPace = $("#detailPace");
 const detailAverage = $("#detailAverage");
 const detailBest = $("#detailBest");
 const detailStatus = $("#detailStatus");
+const detailPreset = $("#detailPreset");
+const detailPause = $("#detailPause");
 const detailRetentions = $("#detailRetentions");
 
 const safetyCheck = $("#safetyCheck");
 const breathCount = $("#breathCount");
 const roundCount = $("#roundCount");
 const pace = $("#pace");
+const interRoundPause = $("#interRoundPause");
+const presetButtons = [...document.querySelectorAll("[data-preset]")];
+const customPresetChip = $("#customPresetChip");
+const presetDescription = $("#presetDescription");
 const voiceGuide = $("#voiceGuide");
 const voiceVolume = $("#voiceVolume");
 const voiceVolumeValue = $("#voiceVolumeValue");
@@ -138,6 +144,10 @@ const roundLabel = $("#roundLabel");
 const breathingPanel = $("#breathingPanel");
 const retentionPanel = $("#retentionPanel");
 const recoveryPanel = $("#recoveryPanel");
+const betweenRoundsPanel = $("#betweenRoundsPanel");
+const betweenRoundsTimer = $("#betweenRoundsTimer");
+const betweenRoundsInstruction = $("#betweenRoundsInstruction");
+const betweenRoundsHint = $("#betweenRoundsHint");
 
 const startCountdown = $("#startCountdown");
 const breathCue = $("#breathCue");
@@ -156,6 +166,8 @@ const summaryRounds = $("#summaryRounds");
 const summaryBreaths = $("#summaryBreaths");
 const summaryAverage = $("#summaryAverage");
 const summaryBest = $("#summaryBest");
+const summaryPreset = $("#summaryPreset");
+const summaryPause = $("#summaryPause");
 const retentionList = $("#retentionList");
 const newSessionBtn = $("#newSessionBtn");
 const saveStatus = $("#saveStatus");
@@ -173,6 +185,31 @@ let weeklyActivityChart = null;
 let lastLoadedSessions = [];
 let preferenceSaveTimer = null;
 let applyingPreferences = false;
+let selectedPreset = "normal";
+
+const SESSION_PRESETS = Object.freeze({
+  soft: {
+    label: "Suave",
+    description: "Suave · sesión tranquila y respiración lenta.",
+    breaths: 30,
+    rounds: 4,
+    pace: "slow"
+  },
+  normal: {
+    label: "Normal",
+    description: "Normal · configuración estándar.",
+    breaths: 30,
+    rounds: 4,
+    pace: "normal"
+  },
+  intense: {
+    label: "Intensa",
+    description: "Intensa · 40 respiraciones y 5 vueltas.",
+    breaths: 40,
+    rounds: 5,
+    pace: "normal"
+  }
+});
 
 const testMode = new URLSearchParams(window.location.search).get("test") === "1";
 if (testMode) {
@@ -182,6 +219,8 @@ if (testMode) {
   breathCount.value = "3";
   roundCount.value = "2";
   pace.value = "fast";
+  interRoundPause.value = "0";
+  selectedPreset = "custom";
 }
 
 function showView(view) {
@@ -199,6 +238,7 @@ function showPhase(phase) {
   breathingPanel.classList.toggle("hidden", phase !== "breathing");
   retentionPanel.classList.toggle("hidden", phase !== "retention");
   recoveryPanel.classList.toggle("hidden", phase !== "recovery");
+  betweenRoundsPanel.classList.toggle("hidden", phase !== "betweenRounds");
 }
 
 function toggleAudioPanel(button, panel) {
@@ -208,11 +248,73 @@ function toggleAudioPanel(button, panel) {
   button.textContent = open ? "Cerrar volumen" : "Volumen";
 }
 
+
+function presetLabel(value) {
+  if (!value) return "No registrado";
+  return SESSION_PRESETS[value]?.label || (value === "custom" ? "Personalizada" : "No registrado");
+}
+
+function pauseLabel(value) {
+  if (value === undefined || value === null) return "No registrado";
+  const seconds = Math.max(0, Number(value) || 0);
+  return seconds > 0 ? `${seconds} s` : "Sin pausa";
+}
+
+function detectPresetFromControls() {
+  const breaths = Number(breathCount.value);
+  const rounds = Number(roundCount.value);
+  const selectedPace = pace.value;
+
+  const match = Object.entries(SESSION_PRESETS).find(([, preset]) =>
+    preset.breaths === breaths &&
+    preset.rounds === rounds &&
+    preset.pace === selectedPace
+  );
+
+  return match?.[0] || "custom";
+}
+
+function renderPresetUi(presetName = detectPresetFromControls()) {
+  selectedPreset = presetName;
+
+  presetButtons.forEach(button => {
+    const active = button.dataset.preset === presetName;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+
+  const custom = presetName === "custom";
+  customPresetChip.classList.toggle("hidden", !custom);
+  presetDescription.textContent = custom
+    ? "Personalizada · combinación manual."
+    : SESSION_PRESETS[presetName].description;
+}
+
+function syncPresetFromControls() {
+  renderPresetUi(detectPresetFromControls());
+}
+
+function applyPreset(presetName) {
+  const preset = SESSION_PRESETS[presetName];
+  if (!preset || testMode) return;
+
+  applyingPreferences = true;
+  breathCount.value = String(preset.breaths);
+  roundCount.value = String(preset.rounds);
+  pace.value = preset.pace;
+  applyingPreferences = false;
+
+  renderPresetUi(presetName);
+  queuePreferenceSave();
+}
+
 function getConfig() {
   return {
     breaths: Number(breathCount.value),
     rounds: Number(roundCount.value),
     pace: pace.value,
+    sessionPreset: testMode ? "custom" : selectedPreset,
+    interRoundPauseSeconds: Number(interRoundPause.value),
     voice: voiceGuide.checked,
     voiceVolume: Number(voiceVolume.value) / 100,
     voiceName: voiceChoice.value || "auto",
@@ -254,6 +356,19 @@ function applyUserPreferences(preferences) {
     if (selectHasValue(pace, normalized.pace)) {
       pace.value = normalized.pace;
     }
+
+    if (selectHasValue(interRoundPause, normalized.interRoundPauseSeconds)) {
+      interRoundPause.value = String(normalized.interRoundPauseSeconds);
+    }
+
+    const detectedPreset = detectPresetFromControls();
+    renderPresetUi(
+      detectedPreset === normalized.sessionPreset
+        ? normalized.sessionPreset
+        : detectedPreset
+    );
+  } else {
+    renderPresetUi("custom");
   }
 
   applyVoiceState(normalized.voice);
@@ -801,6 +916,8 @@ function showSessionDetail(session){
   detailAverage.textContent=formatClock(session.averageRetentionSeconds||0);
   detailBest.textContent=formatClock(session.bestRetentionSeconds||0);
   detailStatus.textContent=session.status==="completed"?"Completada":(session.status||"—");
+  detailPreset.textContent=presetLabel(session.sessionPreset);
+  detailPause.textContent=pauseLabel(session.interRoundPauseSeconds);
   detailRetentions.innerHTML="";
   const values=Array.isArray(session.retentionsSeconds)?session.retentionsSeconds:[];
   if(!values.length){detailRetentions.innerHTML='<p class="muted">No hay retenciones registradas.</p>';}
@@ -941,6 +1058,24 @@ const engine = new SessionEngine({
     roundLabel.textContent = `Siguiente: vuelta ${nextRound}`;
   },
 
+  onInterRoundPauseStarted(nextRound, seconds) {
+    betweenRoundsTimer.textContent = seconds;
+    betweenRoundsInstruction.textContent = "Descansa";
+    betweenRoundsHint.textContent = `Siguiente: vuelta ${nextRound}. Respira con normalidad.`;
+  },
+
+  onInterRoundPauseTick(remaining, nextRound) {
+    betweenRoundsTimer.textContent = remaining;
+    betweenRoundsInstruction.textContent = remaining <= 3 ? "Prepárate" : "Descansa";
+    betweenRoundsHint.textContent = `Siguiente: vuelta ${nextRound}.`;
+  },
+
+  onInterRoundPauseFinished(nextRound) {
+    betweenRoundsTimer.textContent = "0";
+    betweenRoundsInstruction.textContent = "Continuamos";
+    betweenRoundsHint.textContent = `Comienza la vuelta ${nextRound}.`;
+  },
+
   async onComplete({ config, retentions }) {
     renderSummary(config, retentions);
     showView(summaryView);
@@ -1020,6 +1155,8 @@ function renderSummary(config, retentions) {
   summaryBreaths.textContent = `${config.breaths} × ${retentions.length}`;
   summaryAverage.textContent = formatClock(avg);
   summaryBest.textContent = formatClock(best);
+  summaryPreset.textContent = presetLabel(config.sessionPreset);
+  summaryPause.textContent = pauseLabel(config.interRoundPauseSeconds);
 
   retentionList.innerHTML = "";
 
@@ -1283,9 +1420,19 @@ sessionAudioSettingsBtn.addEventListener("click", () => {
   toggleAudioPanel(sessionAudioSettingsBtn, sessionAudioSettingsPanel);
 });
 
-breathCount.addEventListener("change", queuePreferenceSave);
-roundCount.addEventListener("change", queuePreferenceSave);
-pace.addEventListener("change", queuePreferenceSave);
+presetButtons.forEach(button => {
+  button.addEventListener("click", () => applyPreset(button.dataset.preset));
+});
+
+const handleManualSessionConfigChange = () => {
+  if (!testMode) syncPresetFromControls();
+  queuePreferenceSave();
+};
+
+breathCount.addEventListener("change", handleManualSessionConfigChange);
+roundCount.addEventListener("change", handleManualSessionConfigChange);
+pace.addEventListener("change", handleManualSessionConfigChange);
+interRoundPause.addEventListener("change", queuePreferenceSave);
 
 voiceGuide.addEventListener("change", () => {
   applyVoiceState(voiceGuide.checked);

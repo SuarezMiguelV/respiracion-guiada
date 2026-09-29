@@ -1,4 +1,39 @@
-const APP_VERSION = "2.18";
+const APP_VERSION = "2.19.3";
+
+const LOCAL_DEV_HOSTS = new Set(["127.0.0.1", "localhost"]);
+const isLocalDevelopment = LOCAL_DEV_HOSTS.has(window.location.hostname);
+
+async function cleanLocalPwaState() {
+  if (!isLocalDevelopment) return;
+
+  try {
+    if ("serviceWorker" in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map(registration => registration.unregister()));
+    }
+
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(
+        keys
+          .filter(key => key.startsWith("respiracion-guiada-v"))
+          .map(key => caches.delete(key))
+      );
+    }
+
+    const reloadKey = "respiracionGuiada.localSwCleaned";
+    if (navigator.serviceWorker?.controller && !sessionStorage.getItem(reloadKey)) {
+      sessionStorage.setItem(reloadKey, "1");
+      window.location.reload();
+      return;
+    }
+
+    sessionStorage.removeItem(reloadKey);
+  } catch (error) {
+    console.warn("No fue posible limpiar el Service Worker local:", error);
+  }
+}
+
 
 let deferredInstallPrompt = null;
 let swRegistration = null;
@@ -93,7 +128,9 @@ navigator.serviceWorker?.addEventListener("controllerchange", () => {
   window.location.reload();
 });
 
-if ("serviceWorker" in navigator) {
+if (isLocalDevelopment) {
+  window.addEventListener("load", cleanLocalPwaState);
+} else if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
       swRegistration = await navigator.serviceWorker.register("./service-worker.js", { scope: "./" });

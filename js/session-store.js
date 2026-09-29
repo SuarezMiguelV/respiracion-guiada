@@ -1,5 +1,6 @@
 import {
   collection,
+  deleteDoc,
   doc,
   getDocs,
   limit,
@@ -164,4 +165,18 @@ export async function listCompletedSessions(userId, maxResults = 100) {
 
   const snapshot = await getDocs(q);
   return snapshot.docs.map(item => ({ id: item.id, ...item.data() }));
+}
+
+
+export async function deleteSessions(userId, sessionIds = []) {
+  if (!firebaseConfigured || !db) throw new Error("Firebase no está configurado.");
+  if (!userId) throw new Error("No hay un usuario autenticado.");
+
+  const uniqueIds = [...new Set(sessionIds.filter(Boolean))];
+
+  for (const sessionId of uniqueIds) {
+    await deleteDoc(doc(db, "users", userId, "sessions", sessionId));
+  }
+
+  return uniqueIds.length;
 }

@@ -1,4 +1,4 @@
-# Respiración Guiada — V2.17.1
+# Respiración Guiada — V2.18
 
 Primera versión funcional del motor de sesión.
 
@@ -621,3 +621,45 @@ Hotfix sobre V2.17.
 - El usuario autenticado vuelve a entrar correctamente a la aplicación.
 - Si el navegador ya está offline al terminar una sesión, se guarda directamente en la cola local.
 - No modifica Firebase Auth, credenciales, historial, voz, audio ni el motor de respiración.
+
+
+## V2.18 — Mobile first, estadísticas e interfaz
+
+### Experiencia móvil
+- Encabezado de usuario reorganizado para evitar que el nombre se comprima verticalmente.
+- Acciones adaptadas a 3 columnas y 2 columnas en teléfonos pequeños.
+- Tarjetas de sesiones más legibles en móvil.
+- Barra superior de la sesión fija y compacta.
+- Mejor uso de `100dvh` y áreas seguras de la PWA.
+- Gráficas más compactas en pantallas pequeñas.
+
+### Estadísticas
+Se agregan:
+- Racha actual de días consecutivos de práctica.
+- Días únicos de práctica.
+- Actividad de las últimas 4 semanas, medida en sesiones completadas.
+
+Estas métricas se enfocan en constancia de práctica y no en competir por tiempos de retención.
+
+### Modo de prueba
+`?test=1` sigue usando:
+- 3 respiraciones
+- 2 vueltas
+- ritmo rápido
+
+Pero desde V2.18 las sesiones de prueba NO se guardan en Firestore ni en la cola offline.
+
+### Limpieza de sesiones de prueba
+Para administradores, el Historial muestra `Eliminar pruebas (N)` cuando detecta sesiones con:
+- `testMode === true`, o
+- 3 respiraciones por vuelta y 2 vueltas planeadas.
+
+La eliminación solicita confirmación antes de borrar los documentos.
+
+### Usuario de prueba
+La cuenta de Authentication de prueba se elimina manualmente desde Firebase Console.
+No se incorpora eliminación de cuentas de otros usuarios desde el navegador porque eso requiere privilegios administrativos de servidor.
+
+### Respiración
+El motor, ritmos, voz, recuperación, retención y audio permanecen sin cambios en V2.18.
+Las nuevas funciones respiratorias se reservan para una versión posterior para no mezclar mejoras de interfaz con cambios al protocolo.

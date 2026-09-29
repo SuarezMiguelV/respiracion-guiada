@@ -28,9 +28,14 @@
         <span id="userName" class="user-name">Usuario</span>
         <span id="userEmail" class="user-email"></span>
       </div>
-      <div id="installStatus" class="install-status" aria-live="polite"></div>
-      <div class="connection-strip" aria-live="polite"><span id="connectionStatus" class="connection-status">En línea</span><span id="pendingSyncCount" class="pending-sync-count"></span></div>
-      <div id="appVersion" class="app-version" aria-label="Versión de la aplicación">v2.17.1</div>
+      <div class="user-meta">
+        <div id="installStatus" class="install-status" aria-live="polite"></div>
+        <div class="connection-strip" aria-live="polite">
+          <span id="connectionStatus" class="connection-status">En línea</span>
+          <span id="pendingSyncCount" class="pending-sync-count"></span>
+        </div>
+        <div id="appVersion" class="app-version" aria-label="Versión de la aplicación">v2.18</div>
+      </div>
       <div class="user-actions">
         <span id="roleBadge" class="role-badge hidden">ADMIN</span>
         <button id="installAppBtn" class="secondary-btn install-app-btn hidden" type="button">Instalar app</button>
@@ -132,6 +137,8 @@
         <div class="history-stat-card"><span>Tiempo practicado</span><strong id="historyPracticeTime">0 s</strong></div>
         <div class="history-stat-card"><span>Últimos 7 días</span><strong id="historyLast7Days">0</strong></div>
         <div class="history-stat-card"><span>Vueltas acumuladas</span><strong id="historyTotalRounds">0</strong></div>
+        <div class="history-stat-card"><span>Racha actual</span><strong id="historyCurrentStreak">0 días</strong></div>
+        <div class="history-stat-card"><span>Días de práctica</span><strong id="historyPracticeDays">0</strong></div>
       </div>
 
 
@@ -156,19 +163,36 @@
               <p class="eyebrow">Patrón por vuelta</p>
               <h2>Promedio de retención por vuelta</h2>
               <p>Promedio histórico de cada vuelta completada.</p>
-            </div>
+      
           </div>
           <div class="chart-wrap">
             <canvas id="roundAverageChart" aria-label="Promedio de retención por vuelta"></canvas>
           </div>
           <p id="roundChartEmpty" class="chart-empty hidden">Todavía no hay retenciones suficientes.</p>
         </div>
+
+        <div class="card chart-card">
+          <div class="chart-card-header">
+            <div>
+              <p class="eyebrow">Constancia</p>
+              <h2>Actividad de las últimas 4 semanas</h2>
+              <p>Número de sesiones completadas por semana.</p>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="weeklyActivityChart" aria-label="Sesiones completadas por semana"></canvas>
+          </div>
+          <p id="activityChartEmpty" class="chart-empty hidden">Todavía no hay actividad suficiente.</p>
+        </div>
       </div>
 
       <div class="card history-card">
         <div class="history-list-header">
           <h2>Sesiones</h2>
-          <button id="refreshHistoryBtn" class="secondary-btn compact-btn" type="button">Actualizar</button>
+          <div class="history-list-actions">
+            <button id="cleanupTestSessionsBtn" class="danger-btn compact-btn hidden" type="button">Eliminar pruebas</button>
+            <button id="refreshHistoryBtn" class="secondary-btn compact-btn" type="button">Actualizar</button>
+          </div>
         </div>
         <div id="historyList" class="history-list"><p class="muted">Cargando sesiones…</p></div>
       </div>
@@ -204,6 +228,9 @@
         <p class="subtitle">
           Sesiones guiadas de respiración, retención y recuperación.
         </p>
+      </div>
+      <div id="testModeNotice" class="test-mode-notice hidden" role="status">
+        MODO PRUEBA · 3 respiraciones × 2 vueltas · esta sesión no se guardará
       </div>
 
       <div class="card safety-card">

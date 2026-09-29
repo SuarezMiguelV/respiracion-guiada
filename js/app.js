@@ -19,7 +19,8 @@ import {
   listCompletedSessions,
   queueCompletedSession,
   syncPendingSessions,
-  getPendingSessionCount
+  getPendingSessionCount,
+  deleteSessions
 } from "./session-store.js";
 import {
   firebaseConfigured,
@@ -82,10 +83,15 @@ const historyAverageRetention = $("#historyAverageRetention");
 const historyPracticeTime = $("#historyPracticeTime");
 const historyLast7Days = $("#historyLast7Days");
 const historyTotalRounds = $("#historyTotalRounds");
+const historyCurrentStreak = $("#historyCurrentStreak");
+const historyPracticeDays = $("#historyPracticeDays");
+const cleanupTestSessionsBtn = $("#cleanupTestSessionsBtn");
 const retentionTrendCanvas = $("#retentionTrendChart");
 const roundAverageCanvas = $("#roundAverageChart");
+const weeklyActivityCanvas = $("#weeklyActivityChart");
 const trendChartEmpty = $("#trendChartEmpty");
 const roundChartEmpty = $("#roundChartEmpty");
+const activityChartEmpty = $("#activityChartEmpty");
 const sessionDetailCard = $("#sessionDetailCard");
 const closeDetailBtn = $("#closeDetailBtn");
 const detailTitle = $("#detailTitle");
@@ -155,6 +161,7 @@ const newSessionBtn = $("#newSessionBtn");
 const saveStatus = $("#saveStatus");
 const connectionStatus = $("#connectionStatus");
 const pendingSyncCount = $("#pendingSyncCount");
+const testModeNotice = $("#testModeNotice");
 
 let activeConfig = null;
 let currentUser = null;
@@ -162,11 +169,14 @@ let currentProfile = null;
 let sessionStartedAt = null;
 let retentionTrendChart = null;
 let roundAverageChart = null;
+let weeklyActivityChart = null;
+let lastLoadedSessions = [];
 let preferenceSaveTimer = null;
 let applyingPreferences = false;
 
 const testMode = new URLSearchParams(window.location.search).get("test") === "1";
 if (testMode) {
+  testModeNotice?.classList.remove("hidden");
   breathCount.insertAdjacentHTML("afterbegin", '<option value="3">3 respiraciones (PRUEBA)</option>');
   roundCount.insertAdjacentHTML("afterbegin", '<option value="2">2 vueltas (PRUEBA)</option>');
   breathCount.value = "3";
@@ -428,6 +438,86 @@ function formatLongDuration(totalSeconds){
   return `${remaining} s`;
 }
 function paceLabel(value){return ({verySlow:"Más lento",slow:"Lento",normal:"Normal",fast:"Rápido"})[value]||value||"—";}
+
+function localDayKey(dateValue) {
+  const date = timestampToDate(dateValue);
+  if (!date) return null;
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function dateAtLocalMidnight(date = new Date()) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function addLocalDays(date, days) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+function calculatePracticeConsistency(sessions) {
+  const keys = new Set(
+    sessions
+      .map(session => localDayKey(session.startedAt))
+      .filter(Boolean)
+  );
+
+  if (!keys.size) return { practiceDays: 0, streak: 0 };
+
+  const practicedDates = [...keys]
+    .map(key => {
+      const [year, month, day] = key.split("-").map(Number);
+      return new Date(year, month - 1, day);
+    })
+    .sort((a, b) => b - a);
+
+  const latest = practicedDates[0];
+  const today = dateAtLocalMidnight(new Date());
+  const yesterday = addLocalDays(today, -1);
+
+  if (latest < yesterday) {
+    return { practiceDays: keys.size, streak: 0 };
+  }
+
+  let streak = 0;
+  let cursor = latest;
+
+  while (keys.has(localDayKey(cursor))) {
+    streak += 1;
+    cursor = addLocalDays(cursor, -1);
+  }
+
+  return { practiceDays: keys.size, streak };
+}
+
+function startOfWeekMonday(dateValue) {
+  const date = dateAtLocalMidnight(dateValue);
+  const mondayOffset = (date.getDay() + 6) % 7;
+  date.setDate(date.getDate() - mondayOffset);
+  return date;
+}
+
+function isTestSession(session) {
+  return session?.testMode === true ||
+    (Number(session?.breathsPerRound) === 3 && Number(session?.plannedRounds) === 2);
+}
+
+function renderTestCleanupControl(sessions) {
+  if (!cleanupTestSessionsBtn) return;
+
+  const isAdmin = currentProfile?.role === "admin";
+  const testSessions = sessions.filter(isTestSession);
+
+  cleanupTestSessionsBtn.classList.toggle("hidden", !isAdmin || testSessions.length === 0);
+  cleanupTestSessionsBtn.textContent = testSessions.length
+    ? `Eliminar pruebas (${testSessions.length})`
+    : "Eliminar pruebas";
+}
+
 function renderHistorySummary(sessions){
   const retentions=sessions.flatMap(s=>Array.isArray(s.retentionsSeconds)?s.retentionsSeconds.map(Number).filter(Number.isFinite):[]);
   const best=retentions.length?Math.max(...retentions):0;
@@ -446,8 +536,12 @@ function renderHistorySummary(sessions){
   historyBestRetention.textContent=formatClock(best);
   historyAverageRetention.textContent=formatClock(avg);
   historyPracticeTime.textContent=formatLongDuration(practice);
+  const consistency=calculatePracticeConsistency(sessions);
+
   historyLast7Days.textContent=last7;
   historyTotalRounds.textContent=totalRounds;
+  historyCurrentStreak.textContent=`${consistency.streak} día${consistency.streak===1?"":"s"}`;
+  historyPracticeDays.textContent=consistency.practiceDays;
 }
 
 function destroyHistoryCharts(){
@@ -458,6 +552,10 @@ function destroyHistoryCharts(){
   if(roundAverageChart){
     roundAverageChart.destroy();
     roundAverageChart=null;
+  }
+  if(weeklyActivityChart){
+    weeklyActivityChart.destroy();
+    weeklyActivityChart=null;
   }
 }
 
@@ -611,9 +709,86 @@ function renderRoundAverageChart(sessions){
   });
 }
 
+
+function buildWeeklyActivity(sessions) {
+  const currentWeek = startOfWeekMonday(new Date());
+  const weeks = [];
+
+  for (let offset = 3; offset >= 0; offset -= 1) {
+    const start = addLocalDays(currentWeek, -7 * offset);
+    const end = addLocalDays(start, 7);
+    const count = sessions.filter(session => {
+      const date = timestampToDate(session.startedAt);
+      return date && date >= start && date < end;
+    }).length;
+
+    const endDisplay = addLocalDays(end, -1);
+    const label = `${new Intl.DateTimeFormat("es-MX", { day: "2-digit", month: "short" }).format(start)}–${new Intl.DateTimeFormat("es-MX", { day: "2-digit", month: "short" }).format(endDisplay)}`;
+
+    weeks.push({ label, count });
+  }
+
+  return weeks;
+}
+
+function renderWeeklyActivityChart(sessions) {
+  if (typeof Chart === "undefined") {
+    activityChartEmpty.textContent = "No fue posible cargar Chart.js.";
+    activityChartEmpty.classList.remove("hidden");
+    weeklyActivityCanvas.classList.add("hidden");
+    return;
+  }
+
+  if (weeklyActivityChart) {
+    weeklyActivityChart.destroy();
+    weeklyActivityChart = null;
+  }
+
+  if (!sessions.length) {
+    weeklyActivityCanvas.classList.add("hidden");
+    activityChartEmpty.classList.remove("hidden");
+    return;
+  }
+
+  weeklyActivityCanvas.classList.remove("hidden");
+  activityChartEmpty.classList.add("hidden");
+
+  const weeks = buildWeeklyActivity(sessions);
+
+  weeklyActivityChart = new Chart(weeklyActivityCanvas, {
+    type: "bar",
+    data: {
+      labels: weeks.map(week => week.label),
+      datasets: [{
+        label: "Sesiones",
+        data: weeks.map(week => week.count)
+      }]
+    },
+    options: {
+      ...chartBaseOptions(),
+      scales: {
+        x: {
+          ticks: { color: "#a9c8ee" },
+          grid: { color: "rgba(168, 200, 238, .08)" }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: "#a9c8ee",
+            precision: 0,
+            stepSize: 1
+          },
+          grid: { color: "rgba(168, 200, 238, .08)" }
+        }
+      }
+    }
+  });
+}
+
 function renderHistoryCharts(sessions){
   renderRetentionTrendChart(sessions);
   renderRoundAverageChart(sessions);
+  renderWeeklyActivityChart(sessions);
 }
 
 function showSessionDetail(session){
@@ -651,10 +826,11 @@ async function loadHistory(){
   historyStatus.textContent="Cargando historial…";historyStatus.className="history-status";sessionDetailCard.classList.add("hidden");
   try{
     const sessions=await listCompletedSessions(currentUser.uid,100);
-    renderHistorySummary(sessions);renderHistoryList(sessions);renderHistoryCharts(sessions);
+    lastLoadedSessions=sessions;
+    renderHistorySummary(sessions);renderHistoryList(sessions);renderHistoryCharts(sessions);renderTestCleanupControl(sessions);
     historyStatus.textContent=sessions.length?`${sessions.length} sesión${sessions.length===1?"":"es"} cargada${sessions.length===1?"":"s"}.`:"Aún no hay sesiones guardadas.";
   }catch(error){
-    console.error(error);renderHistorySummary([]);destroyHistoryCharts();historyList.innerHTML='<p class="muted">No fue posible cargar el historial.</p>';historyStatus.textContent="Error al consultar Firestore.";historyStatus.className="history-status error";
+    console.error(error);lastLoadedSessions=[];renderHistorySummary([]);destroyHistoryCharts();renderTestCleanupControl([]);historyList.innerHTML='<p class="muted">No fue posible cargar el historial.</p>';historyStatus.textContent="Error al consultar Firestore.";historyStatus.className="history-status error";
   }
 }
 async function openHistory(){if(!currentUser)return;showView(historyView);await loadHistory();}
@@ -779,6 +955,13 @@ const engine = new SessionEngine({
         pitch: 0.94
       }
     );
+
+    if (testMode) {
+      saveStatus.textContent = "Modo prueba: esta sesión no se guardó en el historial.";
+      saveStatus.className = "save-status success";
+      updateConnectionUi();
+      return;
+    }
 
     if (!currentUser || !sessionStartedAt) {
       saveStatus.textContent = "No fue posible guardar la sesión: falta el usuario.";
@@ -928,6 +1111,40 @@ closeAdminBtn.addEventListener("click", () => {
 historyBtn.addEventListener("click", openHistory);
 homeHistoryBtn.addEventListener("click", openHistory);
 refreshHistoryBtn.addEventListener("click", loadHistory);
+
+cleanupTestSessionsBtn?.addEventListener("click", async () => {
+  if (!currentUser || currentProfile?.role !== "admin") return;
+
+  const testSessions = lastLoadedSessions.filter(isTestSession);
+  if (!testSessions.length) return;
+
+  const confirmed = window.confirm(
+    `Se eliminarán ${testSessions.length} sesión(es) de prueba detectadas por la configuración 3 respiraciones × 2 vueltas. Esta acción no se puede deshacer. ¿Continuar?`
+  );
+
+  if (!confirmed) return;
+
+  cleanupTestSessionsBtn.disabled = true;
+  historyStatus.textContent = "Eliminando sesiones de prueba…";
+
+  try {
+    const removed = await deleteSessions(
+      currentUser.uid,
+      testSessions.map(session => session.id)
+    );
+
+    await loadHistory();
+    historyStatus.textContent = `${removed} sesión(es) de prueba eliminada(s).`;
+    historyStatus.className = "history-status";
+  } catch (error) {
+    console.error("No fue posible eliminar las sesiones de prueba:", error);
+    historyStatus.textContent = "No fue posible eliminar las sesiones de prueba.";
+    historyStatus.className = "history-status error";
+  } finally {
+    cleanupTestSessionsBtn.disabled = false;
+  }
+});
+
 closeHistoryBtn.addEventListener("click", () => { sessionDetailCard.classList.add("hidden"); showView(setupView); });
 closeDetailBtn.addEventListener("click", () => { sessionDetailCard.classList.add("hidden"); });
 

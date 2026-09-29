@@ -112,6 +112,8 @@ const breathCount = $("#breathCount");
 const roundCount = $("#roundCount");
 const pace = $("#pace");
 const interRoundPause = $("#interRoundPause");
+const voiceCountInterval = $("#voiceCountInterval");
+const keepScreenAwake = $("#keepScreenAwake");
 const presetButtons = [...document.querySelectorAll("[data-preset]")];
 const customPresetChip = $("#customPresetChip");
 const presetDescription = $("#presetDescription");
@@ -129,6 +131,8 @@ const setupAudioSettingsPanel = $("#setupAudioSettingsPanel");
 const preferencesStatus = $("#preferencesStatus");
 const startBtn = $("#startBtn");
 const stopBtn = $("#stopBtn");
+const sessionWakeLockToggle = $("#sessionWakeLockToggle");
+const sessionWakeLockLabel = $("#sessionWakeLockLabel");
 const sessionSoundToggle = $("#sessionSoundToggle");
 const sessionSoundLabel = $("#sessionSoundLabel");
 const sessionBreathingSoundToggle = $("#sessionBreathingSoundToggle");
@@ -186,6 +190,8 @@ let lastLoadedSessions = [];
 let preferenceSaveTimer = null;
 let applyingPreferences = false;
 let selectedPreset = "normal";
+let wakeLockSentinel = null;
+let sessionActive = false;
 
 const SESSION_PRESETS = Object.freeze({
   soft: {
@@ -308,6 +314,82 @@ function applyPreset(presetName) {
   queuePreferenceSave();
 }
 
+
+function wakeLockSupported() {
+  return "wakeLock" in navigator && typeof navigator.wakeLock?.request === "function";
+}
+
+function updateWakeLockUi() {
+  if (!sessionWakeLockToggle || !sessionWakeLockLabel) return;
+
+  const enabled = Boolean(activeConfig?.keepScreenAwake ?? keepScreenAwake?.checked);
+  sessionWakeLockToggle.checked = enabled;
+
+  if (!enabled) {
+    sessionWakeLockLabel.textContent = "Pantalla normal";
+    return;
+  }
+
+  if (!wakeLockSupported()) {
+    sessionWakeLockLabel.textContent = "Pantalla no disponible";
+    return;
+  }
+
+  sessionWakeLockLabel.textContent = wakeLockSentinel ? "Pantalla activa" : "Pantalla";
+}
+
+async function requestSessionWakeLock() {
+  if (!sessionActive || !activeConfig?.keepScreenAwake || document.visibilityState !== "visible") {
+    updateWakeLockUi();
+    return false;
+  }
+
+  if (!wakeLockSupported()) {
+    updateWakeLockUi();
+    return false;
+  }
+
+  if (wakeLockSentinel) {
+    updateWakeLockUi();
+    return true;
+  }
+
+  try {
+    const sentinel = await navigator.wakeLock.request("screen");
+    wakeLockSentinel = sentinel;
+
+    sentinel.addEventListener("release", () => {
+      if (wakeLockSentinel === sentinel) {
+        wakeLockSentinel = null;
+        updateWakeLockUi();
+      }
+    });
+
+    updateWakeLockUi();
+    return true;
+  } catch (error) {
+    console.warn("No fue posible mantener la pantalla activa:", error);
+    wakeLockSentinel = null;
+    updateWakeLockUi();
+    return false;
+  }
+}
+
+async function releaseSessionWakeLock() {
+  const sentinel = wakeLockSentinel;
+  wakeLockSentinel = null;
+
+  if (sentinel) {
+    try {
+      await sentinel.release();
+    } catch (error) {
+      console.warn("No fue posible liberar Wake Lock:", error);
+    }
+  }
+
+  updateWakeLockUi();
+}
+
 function getConfig() {
   return {
     breaths: Number(breathCount.value),
@@ -315,6 +397,8 @@ function getConfig() {
     pace: pace.value,
     sessionPreset: testMode ? "custom" : selectedPreset,
     interRoundPauseSeconds: Number(interRoundPause.value),
+    voiceCountInterval: Number(voiceCountInterval.value),
+    keepScreenAwake: keepScreenAwake.checked,
     voice: voiceGuide.checked,
     voiceVolume: Number(voiceVolume.value) / 100,
     voiceName: voiceChoice.value || "auto",
@@ -360,6 +444,12 @@ function applyUserPreferences(preferences) {
     if (selectHasValue(interRoundPause, normalized.interRoundPauseSeconds)) {
       interRoundPause.value = String(normalized.interRoundPauseSeconds);
     }
+
+    if (selectHasValue(voiceCountInterval, normalized.voiceCountInterval)) {
+      voiceCountInterval.value = String(normalized.voiceCountInterval);
+    }
+
+    keepScreenAwake.checked = normalized.keepScreenAwake;
 
     const detectedPreset = detectPresetFromControls();
     renderPresetUi(
@@ -955,6 +1045,7 @@ async function openHistory(){if(!currentUser)return;showView(historyView);await 
 const engine = new SessionEngine({
   onSessionStarted(config) {
     activeConfig = config;
+    sessionActive = true;
     sessionStartedAt = new Date();
     saveStatus.textContent = "";
     saveStatus.className = "save-status";
@@ -976,6 +1067,10 @@ const engine = new SessionEngine({
     phaseHint.textContent = "Comienza con una respiración cómoda y sin forzar.";
     breathCue.classList.add("hidden");
     breathingOrb.classList.remove("inhale", "exhale");
+
+    sessionWakeLockToggle.checked = Boolean(config.keepScreenAwake);
+    updateWakeLockUi();
+    requestSessionWakeLock();
   },
 
   onStartCountdown(value) {
@@ -1077,6 +1172,8 @@ const engine = new SessionEngine({
   },
 
   async onComplete({ config, retentions }) {
+    sessionActive = false;
+    await releaseSessionWakeLock();
     renderSummary(config, retentions);
     showView(summaryView);
 
@@ -1143,6 +1240,8 @@ const engine = new SessionEngine({
   },
 
   onStopped() {
+    sessionActive = false;
+    releaseSessionWakeLock();
     showView(setupView);
   }
 });
@@ -1298,6 +1397,12 @@ window.addEventListener("online", () => {
 
 window.addEventListener("offline", updateConnectionUi);
 
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && sessionActive && activeConfig?.keepScreenAwake) {
+    requestSessionWakeLock();
+  }
+});
+
 updateConnectionUi();
 
 watchAuth(async user => {
@@ -1433,6 +1538,8 @@ breathCount.addEventListener("change", handleManualSessionConfigChange);
 roundCount.addEventListener("change", handleManualSessionConfigChange);
 pace.addEventListener("change", handleManualSessionConfigChange);
 interRoundPause.addEventListener("change", queuePreferenceSave);
+voiceCountInterval.addEventListener("change", queuePreferenceSave);
+keepScreenAwake.addEventListener("change", queuePreferenceSave);
 
 voiceGuide.addEventListener("change", () => {
   applyVoiceState(voiceGuide.checked);
@@ -1499,6 +1606,25 @@ sessionBreathingSoundToggle.addEventListener("change", async () => {
 });
 
 
+sessionWakeLockToggle.addEventListener("change", async () => {
+  const enabled = sessionWakeLockToggle.checked;
+
+  keepScreenAwake.checked = enabled;
+
+  if (activeConfig) {
+    activeConfig.keepScreenAwake = enabled;
+  }
+
+  if (enabled) {
+    await requestSessionWakeLock();
+  } else {
+    await releaseSessionWakeLock();
+  }
+
+  queuePreferenceSave();
+});
+
+
 onSpeechVoicesChanged(() => {
   const selected = currentProfile?.preferences?.voiceName || voiceChoice.value || "auto";
   populateVoiceChoices(selected);
@@ -1528,7 +1654,7 @@ finishRetentionBtn.addEventListener("click", () => {
 
 stopBtn.addEventListener("click", () => {
   const confirmStop = window.confirm(
-    "¿Quieres finalizar esta sesión? En esta primera versión no se guardará el progreso incompleto."
+    "¿Quieres finalizar esta sesión? El progreso incompleto no se guardará."
   );
 
   if (confirmStop) engine.stop(true);

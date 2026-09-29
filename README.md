@@ -1,4 +1,4 @@
-# Respiración Guiada — V2.19.3
+# Respiración Guiada — V2.20
 
 Primera versión funcional del motor de sesión.
 
@@ -688,3 +688,44 @@ El bloque de inicio de sesión y sus controles de audio también conservan el fl
 - Personalizada automática al modificar respiraciones, vueltas o ritmo.
 - Pausa entre vueltas al final en Opciones avanzadas.
 - Sin pausa adicional como valor predeterminado y recomendado.
+
+
+## V2.20 — Controles de sesión y personalización avanzada
+
+### Mantener pantalla activa
+Nueva preferencia activada por defecto:
+- intenta usar Screen Wake Lock durante una sesión;
+- evita que la pantalla se apague cuando el navegador/dispositivo lo permite;
+- libera el bloqueo al terminar o detener la sesión;
+- lo solicita de nuevo al volver a la app si el navegador lo liberó;
+- puede activarse o desactivarse también desde la barra superior de la sesión.
+
+Si Wake Lock no está soportado, la sesión funciona normalmente.
+
+### Conteo por voz
+Nueva opción avanzada:
+- Cada 10 respiraciones · recomendado y comportamiento histórico.
+- Cada 5 respiraciones.
+- Solo anunciar `Última`.
+
+`Inhala` y `Exhala` se mantienen en cada respiración.
+La opción únicamente cambia cuándo se pronuncia el número.
+
+### Finalizar
+La confirmación de finalización se mantiene y ahora indica claramente que
+el progreso incompleto no se guardará.
+
+### Sin cambios
+V2.20 no modifica:
+- duración ni ritmo de inhalación/exhalación;
+- retención;
+- recuperación de 15 s;
+- voz seleccionada;
+- sonido de respiración;
+- presets;
+- modo offline;
+- Firebase Authentication;
+- estadísticas.
+
+La pausa entre vueltas permanece al final de Opciones avanzadas y
+`Sin pausa adicional` sigue siendo el valor recomendado.

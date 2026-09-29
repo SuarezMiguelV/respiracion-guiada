@@ -34,7 +34,7 @@
           <span id="connectionStatus" class="connection-status">En línea</span>
           <span id="pendingSyncCount" class="pending-sync-count"></span>
         </div>
-        <div id="appVersion" class="app-version" aria-label="Versión de la aplicación">v2.19.3</div>
+        <div id="appVersion" class="app-version" aria-label="Versión de la aplicación">v2.20</div>
       </div>
       <div class="user-actions">
         <span id="roleBadge" class="role-badge hidden">ADMIN</span>
@@ -387,18 +387,42 @@
         <details class="advanced-session-options">
           <summary>Opciones avanzadas</summary>
           <div class="advanced-session-options-body">
-            <label for="interRoundPause">Pausa entre vueltas</label>
-            <select id="interRoundPause">
-              <option value="0" selected>Sin pausa adicional</option>
-              <option value="5">5 segundos</option>
-              <option value="10">10 segundos</option>
-              <option value="15">15 segundos</option>
-              <option value="30">30 segundos</option>
-            </select>
-            <p class="field-help advanced-help">
-              Se aplica después de la recuperación de 15 s y antes de comenzar la siguiente vuelta.
-              <strong>Uso recomendado: sin pausa adicional.</strong>
-            </p>
+            <div class="advanced-option-block">
+              <label class="check-row advanced-check-row">
+                <input id="keepScreenAwake" type="checkbox" checked />
+                <span>
+                  Mantener pantalla activa durante la sesión
+                  <small>Evita que el dispositivo apague la pantalla cuando el navegador lo permite.</small>
+                </span>
+              </label>
+            </div>
+
+            <div class="advanced-option-block">
+              <label for="voiceCountInterval">Conteo por voz</label>
+              <select id="voiceCountInterval">
+                <option value="10" selected>Cada 10 respiraciones · recomendado</option>
+                <option value="5">Cada 5 respiraciones</option>
+                <option value="0">Solo anunciar “Última”</option>
+              </select>
+              <p class="field-help advanced-help">
+                “Inhala” y “Exhala” se mantienen en cada respiración; esta opción solo cambia cuándo se dice el número.
+              </p>
+            </div>
+
+            <div class="advanced-option-block advanced-option-last">
+              <label for="interRoundPause">Pausa entre vueltas</label>
+              <select id="interRoundPause">
+                <option value="0" selected>Sin pausa adicional</option>
+                <option value="5">5 segundos</option>
+                <option value="10">10 segundos</option>
+                <option value="15">15 segundos</option>
+                <option value="30">30 segundos</option>
+              </select>
+              <p class="field-help advanced-help">
+                Se aplica después de la recuperación de 15 s y antes de comenzar la siguiente vuelta.
+                <strong>Uso recomendado: sin pausa adicional.</strong>
+              </p>
+            </div>
           </div>
         </details>
 
@@ -421,6 +445,12 @@
             <input id="sessionBreathingSoundToggle" type="checkbox" />
             <span class="sound-switch-ui" aria-hidden="true"></span>
             <span id="sessionBreathingSoundLabel">Respiración</span>
+          </label>
+
+          <label class="sound-switch screen-switch" for="sessionWakeLockToggle">
+            <input id="sessionWakeLockToggle" type="checkbox" checked />
+            <span class="sound-switch-ui" aria-hidden="true"></span>
+            <span id="sessionWakeLockLabel">Pantalla</span>
           </label>
 
           <button id="stopBtn" class="text-btn">Finalizar</button>

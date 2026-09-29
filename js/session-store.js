@@ -113,6 +113,9 @@ async function writeSession({
     pace: config.pace,
     sessionPreset: config.sessionPreset || "custom",
     interRoundPauseSeconds: Math.max(0, Number(config.interRoundPauseSeconds) || 0),
+    voiceCountInterval: [0, 5, 10].includes(Number(config.voiceCountInterval))
+      ? Number(config.voiceCountInterval)
+      : 10,
     voiceEnabled: Boolean(config.voice),
     breathingSoundEnabled: Boolean(config.breathingSound),
     retentionsSeconds: values,

@@ -1,4 +1,4 @@
-const APP_VERSION = "2.19.3";
+const APP_VERSION = "2.20";
 const CACHE_VERSION = `respiracion-guiada-v${APP_VERSION}`;
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;

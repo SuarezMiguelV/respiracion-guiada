@@ -131,14 +131,18 @@ export class SessionEngine {
 
       playBreathingSound("inhale", pace.inhale);
 
+      const voiceCountInterval = [5, 10].includes(Number(this.config?.voiceCountInterval))
+        ? Number(this.config.voiceCountInterval)
+        : 0;
+
       if (isLastBreath) {
         // La pantalla ya muestra INHALA; la voz solo anuncia que es la última.
         speak("Última", { interrupt: true, rate: 0.92 });
-      } else if (breath % 10 === 0) {
-        // Referencia hablada solamente cada 10 respiraciones.
+      } else if (voiceCountInterval > 0 && breath % voiceCountInterval === 0) {
+        // El usuario elige si quiere una referencia numérica cada 5 o 10 respiraciones.
         speak(`${breath}, inhala`, { interrupt: true, rate: 1.0 });
       } else {
-        // Mantiene la guía sin recitar el número en cada ciclo.
+        // "Inhala" se mantiene aunque el conteo numérico esté desactivado.
         speak("Inhala", { interrupt: true, rate: 1.0 });
       }
 

@@ -1434,3 +1434,50 @@ input[type="checkbox"] {
 
   .preset-card strong { margin:0; }
 }
+
+
+/* ===== V2.20 · Controles de sesión y personalización avanzada ===== */
+
+.advanced-option-block {
+  padding: 4px 0 14px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(167, 201, 244, .09);
+}
+
+.advanced-option-last {
+  border-bottom: 0;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.advanced-check-row {
+  margin: 0;
+}
+
+.advanced-check-row small {
+  display: block;
+  margin-top: 3px;
+  color: #8faed3;
+  font-size: .74rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.screen-switch {
+  min-width: max-content;
+}
+
+@media (max-width: 680px) {
+  .session-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .screen-switch {
+    order: 3;
+  }
+
+  #stopBtn {
+    order: 4;
+  }
+}

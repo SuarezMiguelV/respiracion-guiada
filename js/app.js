@@ -1515,6 +1515,7 @@ const engine = new SessionEngine({
 
     sessionAmbientPanel.classList.add("hidden");
     sessionAmbientBtn.setAttribute("aria-expanded", "false");
+    sessionAmbientBtn.textContent = "Ambiente";
 
     showPhase("breathing");
     breathLabel.textContent = `Respiración 0 de ${config.breaths}`;
@@ -2091,6 +2092,7 @@ sessionQuickControlsBtn.addEventListener("click", () => {
   if (!opening) {
     sessionAmbientPanel.classList.add("hidden");
     sessionAmbientBtn.setAttribute("aria-expanded", "false");
+    sessionAmbientBtn.textContent = "Ambiente";
   }
 });
 

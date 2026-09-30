@@ -1707,7 +1707,7 @@ input[type="checkbox"] {
 }
 
 
-/* ===== V2.23 · Experiencia de sesión y cierre final ===== */
+/* ===== V2.23.1 · Experiencia de sesión y cierre final ===== */
 
 .session-topbar-v223 {
   position: sticky;
@@ -1755,39 +1755,8 @@ input[type="checkbox"] {
   line-height: 1.5;
 }
 
-.summary-main-card {
-  overflow: hidden;
-}
-
 .summary-grid-v223 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.summary-grid-v223 > div {
-  min-width: 0;
-}
-
-.summary-grid-v223 strong {
-  display: block;
-  overflow-wrap: anywhere;
-}
-
-.summary-section-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-
-.summary-section-heading h2,
-.summary-section-heading p {
-  margin-bottom: 0;
-}
-
-.retention-row-v223 {
-  align-items: center;
-  gap: 14px;
 }
 
 .retention-row-v223 > div {
@@ -1816,26 +1785,22 @@ input[type="checkbox"] {
 @media (max-width: 760px) {
   .session-quick-controls-panel {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    justify-content: stretch;
   }
 
   .session-quick-controls-panel .sound-switch,
   .session-quick-controls-panel .text-btn {
     width: 100%;
     justify-content: center;
-    min-width: 0;
   }
 
   .summary-grid-v223 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 9px;
   }
 }
 
 @media (max-width: 540px) {
   .session-topbar-v223 {
     top: 4px;
-    margin-bottom: 10px;
   }
 
   .session-topbar-v223 #roundLabel {
@@ -1853,52 +1818,8 @@ input[type="checkbox"] {
     font-size: .78rem;
   }
 
-  .session-quick-controls-panel {
-    margin-top: 0;
-    padding: 9px;
-    gap: 7px;
-  }
-
-  .session-status-row {
-    gap: 5px;
-    margin-bottom: 5px;
-  }
-
-  .session-status-badge {
-    min-height: 24px;
-    padding: 3px 7px;
-    font-size: .66rem;
-  }
-
-  #sessionView .phase-panel {
-    min-height: 62vh;
-    padding-top: 8px;
-    padding-bottom: 12px;
-  }
-
-  #sessionView .breathing-orb {
-    max-width: min(72vw, 310px);
-  }
-
-  #sessionView .big-timer {
-    font-size: clamp(3.1rem, 17vw, 5rem);
-  }
-
-  #sessionView .recovery-count {
-    width: min(48vw, 165px);
-    font-size: clamp(3.2rem, 16vw, 4.7rem);
-  }
-
-  .summary-hero {
-    padding-bottom: 6px;
-  }
-
-  .summary-grid-v223 > div {
-    padding: 12px;
-  }
-
-  .summary-grid-v223 strong {
-    font-size: 1.08rem;
+  #sessionView .phase-hint {
+    max-width: 92%;
   }
 
   .summary-actions {
@@ -1911,19 +1832,11 @@ input[type="checkbox"] {
 }
 
 @media (max-width: 370px) {
-  .session-topbar-v223 {
-    align-items: center;
-  }
-
   .session-primary-actions {
     flex-direction: column;
-    align-items: stretch;
   }
 
-  .session-quick-controls-panel {
-    grid-template-columns: 1fr;
-  }
-
+  .session-quick-controls-panel,
   .summary-grid-v223 {
     grid-template-columns: 1fr;
   }

@@ -15,6 +15,12 @@ import {
   primeBreathingAudio
 } from "./audio.js";
 import {
+  primeAmbientAudio,
+  startAmbient,
+  stopAmbient,
+  setAmbientVolume
+} from "./ambient.js";
+import {
   saveCompletedSession,
   listCompletedSessions,
   queueCompletedSession,
@@ -114,6 +120,10 @@ const pace = $("#pace");
 const interRoundPause = $("#interRoundPause");
 const voiceCountInterval = $("#voiceCountInterval");
 const keepScreenAwake = $("#keepScreenAwake");
+const focusMode = $("#focusMode");
+const ambientPresetButtons = [...document.querySelectorAll("[data-ambient]")];
+const ambientVolume = $("#ambientVolume");
+const ambientVolumeValue = $("#ambientVolumeValue");
 const presetButtons = [...document.querySelectorAll("[data-preset]")];
 const customPresetChip = $("#customPresetChip");
 const presetDescription = $("#presetDescription");
@@ -133,6 +143,14 @@ const startBtn = $("#startBtn");
 const stopBtn = $("#stopBtn");
 const sessionWakeLockToggle = $("#sessionWakeLockToggle");
 const sessionWakeLockLabel = $("#sessionWakeLockLabel");
+const sessionFocusBtn = $("#sessionFocusBtn");
+const sessionAmbientBtn = $("#sessionAmbientBtn");
+const sessionAmbientPanel = $("#sessionAmbientPanel");
+const sessionAmbientMode = $("#sessionAmbientMode");
+const sessionAmbientVolume = $("#sessionAmbientVolume");
+const sessionAmbientVolumeValue = $("#sessionAmbientVolumeValue");
+const focusStatusBadge = $("#focusStatusBadge");
+const wakeStatusBadge = $("#wakeStatusBadge");
 const sessionSoundToggle = $("#sessionSoundToggle");
 const sessionSoundLabel = $("#sessionSoundLabel");
 const sessionBreathingSoundToggle = $("#sessionBreathingSoundToggle");
@@ -192,6 +210,7 @@ let applyingPreferences = false;
 let selectedPreset = "normal";
 let wakeLockSentinel = null;
 let sessionActive = false;
+let selectedAmbientMode = "off";
 
 const SESSION_PRESETS = Object.freeze({
   soft: {
@@ -325,17 +344,40 @@ function updateWakeLockUi() {
   const enabled = Boolean(activeConfig?.keepScreenAwake ?? keepScreenAwake?.checked);
   sessionWakeLockToggle.checked = enabled;
 
+  sessionWakeLockLabel.classList.remove("status-ok", "status-off", "status-unavailable");
+  wakeStatusBadge?.classList.remove("active", "off", "unavailable");
+
   if (!enabled) {
     sessionWakeLockLabel.textContent = "Pantalla normal";
+    sessionWakeLockLabel.classList.add("status-off");
+    if (wakeStatusBadge) {
+      wakeStatusBadge.textContent = "Pantalla: normal";
+      wakeStatusBadge.classList.add("off");
+    }
     return;
   }
 
   if (!wakeLockSupported()) {
     sessionWakeLockLabel.textContent = "Pantalla no disponible";
+    sessionWakeLockLabel.classList.add("status-unavailable");
+    if (wakeStatusBadge) {
+      wakeStatusBadge.textContent = "Pantalla: no disponible";
+      wakeStatusBadge.classList.add("unavailable");
+    }
     return;
   }
 
-  sessionWakeLockLabel.textContent = wakeLockSentinel ? "Pantalla activa" : "Pantalla";
+  if (wakeLockSentinel) {
+    sessionWakeLockLabel.textContent = "Pantalla activa ✓";
+    sessionWakeLockLabel.classList.add("status-ok");
+    if (wakeStatusBadge) {
+      wakeStatusBadge.textContent = "Pantalla: activa ✓";
+      wakeStatusBadge.classList.add("active");
+    }
+  } else {
+    sessionWakeLockLabel.textContent = "Activar pantalla";
+    if (wakeStatusBadge) wakeStatusBadge.textContent = "Pantalla: lista para activar";
+  }
 }
 
 async function requestSessionWakeLock() {
@@ -390,6 +432,52 @@ async function releaseSessionWakeLock() {
   updateWakeLockUi();
 }
 
+function renderAmbientSelection(mode = selectedAmbientMode) {
+  selectedAmbientMode = ["off", "deep", "binaural432", "tibetan", "piano"].includes(mode) ? mode : "off";
+  ambientPresetButtons.forEach(button => {
+    const active = button.dataset.ambient === selectedAmbientMode;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  if (sessionAmbientMode) sessionAmbientMode.value = selectedAmbientMode;
+}
+
+function applyFocusMode(enabled) {
+  const active = Boolean(enabled);
+
+  focusMode.checked = active;
+  sessionView.classList.toggle("focus-mode", active);
+
+  sessionFocusBtn?.setAttribute("aria-pressed", String(active));
+  sessionFocusBtn?.classList.toggle("active-state", active);
+
+  if (sessionFocusBtn) {
+    sessionFocusBtn.textContent = active ? "Enfoque activo" : "Vista completa";
+  }
+
+  if (focusStatusBadge) {
+    focusStatusBadge.textContent = active ? "Enfoque: activo" : "Enfoque: desactivado";
+    focusStatusBadge.classList.toggle("active", active);
+    focusStatusBadge.classList.toggle("off", !active);
+  }
+}
+
+async function applyAmbientSelection(mode, persist = true) {
+  renderAmbientSelection(mode);
+  if (sessionActive) {
+    try {
+      if (selectedAmbientMode === "off") stopAmbient();
+      else {
+        await primeAmbientAudio();
+        await startAmbient({ mode: selectedAmbientMode, volume: Number(ambientVolume.value) / 100 });
+      }
+    } catch (error) {
+      console.warn("No fue posible aplicar el ambiente:", error);
+    }
+  }
+  if (persist) queuePreferenceSave();
+}
+
 function getConfig() {
   return {
     breaths: Number(breathCount.value),
@@ -399,6 +487,9 @@ function getConfig() {
     interRoundPauseSeconds: Number(interRoundPause.value),
     voiceCountInterval: Number(voiceCountInterval.value),
     keepScreenAwake: keepScreenAwake.checked,
+    ambientMode: selectedAmbientMode,
+    ambientVolume: Number(ambientVolume.value) / 100,
+    focusMode: focusMode.checked,
     voice: voiceGuide.checked,
     voiceVolume: Number(voiceVolume.value) / 100,
     voiceName: voiceChoice.value || "auto",
@@ -450,6 +541,12 @@ function applyUserPreferences(preferences) {
     }
 
     keepScreenAwake.checked = normalized.keepScreenAwake;
+    focusMode.checked = normalized.focusMode;
+    ambientVolume.value = String(Math.round(normalized.ambientVolume * 100));
+    ambientVolumeValue.textContent = `${Math.round(normalized.ambientVolume * 100)}%`;
+    sessionAmbientVolume.value = ambientVolume.value;
+    sessionAmbientVolumeValue.textContent = ambientVolumeValue.textContent;
+    renderAmbientSelection(normalized.ambientMode);
 
     const detectedPreset = detectPresetFromControls();
     renderPresetUi(
@@ -1071,6 +1168,21 @@ const engine = new SessionEngine({
     sessionWakeLockToggle.checked = Boolean(config.keepScreenAwake);
     updateWakeLockUi();
     requestSessionWakeLock();
+
+    applyFocusMode(config.focusMode);
+    sessionAmbientPanel.classList.add("hidden");
+    sessionAmbientBtn.setAttribute("aria-expanded", "false");
+    sessionAmbientMode.value = config.ambientMode || "off";
+    sessionAmbientVolume.value = String(Math.round((config.ambientVolume ?? 0.18) * 100));
+    sessionAmbientVolumeValue.textContent = `${sessionAmbientVolume.value}%`;
+
+    if (config.ambientMode && config.ambientMode !== "off") {
+      primeAmbientAudio()
+        .then(() => startAmbient({ mode: config.ambientMode, volume: config.ambientVolume }))
+        .catch(error => console.warn("No fue posible iniciar el ambiente:", error));
+    } else {
+      stopAmbient();
+    }
   },
 
   onStartCountdown(value) {
@@ -1173,6 +1285,7 @@ const engine = new SessionEngine({
 
   async onComplete({ config, retentions }) {
     sessionActive = false;
+    stopAmbient();
     await releaseSessionWakeLock();
     renderSummary(config, retentions);
     showView(summaryView);
@@ -1241,6 +1354,7 @@ const engine = new SessionEngine({
 
   onStopped() {
     sessionActive = false;
+    stopAmbient();
     releaseSessionWakeLock();
     showView(setupView);
   }
@@ -1540,6 +1654,20 @@ pace.addEventListener("change", handleManualSessionConfigChange);
 interRoundPause.addEventListener("change", queuePreferenceSave);
 voiceCountInterval.addEventListener("change", queuePreferenceSave);
 keepScreenAwake.addEventListener("change", queuePreferenceSave);
+focusMode.addEventListener("change", queuePreferenceSave);
+
+ambientPresetButtons.forEach(button => {
+  button.addEventListener("click", () => applyAmbientSelection(button.dataset.ambient));
+});
+
+ambientVolume.addEventListener("input", () => {
+  const value = Number(ambientVolume.value);
+  ambientVolumeValue.textContent = `${value}%`;
+  sessionAmbientVolume.value = String(value);
+  sessionAmbientVolumeValue.textContent = `${value}%`;
+  setAmbientVolume(value / 100);
+  queuePreferenceSave();
+});
 
 voiceGuide.addEventListener("change", () => {
   applyVoiceState(voiceGuide.checked);
@@ -1621,6 +1749,45 @@ sessionWakeLockToggle.addEventListener("change", async () => {
     await releaseSessionWakeLock();
   }
 
+  queuePreferenceSave();
+});
+
+sessionFocusBtn.addEventListener("click", () => {
+  const next = !sessionView.classList.contains("focus-mode");
+  applyFocusMode(next);
+  if (activeConfig) activeConfig.focusMode = next;
+  queuePreferenceSave();
+});
+
+sessionAmbientBtn.addEventListener("click", () => {
+  const opening = sessionAmbientPanel.classList.contains("hidden");
+  sessionAmbientPanel.classList.toggle("hidden", !opening);
+  sessionAmbientBtn.setAttribute("aria-expanded", String(opening));
+});
+
+sessionAmbientMode.addEventListener("change", async () => {
+  selectedAmbientMode = sessionAmbientMode.value;
+  renderAmbientSelection(selectedAmbientMode);
+  if (activeConfig) activeConfig.ambientMode = selectedAmbientMode;
+  try {
+    if (selectedAmbientMode === "off") stopAmbient();
+    else {
+      await primeAmbientAudio();
+      await startAmbient({ mode: selectedAmbientMode, volume: Number(sessionAmbientVolume.value) / 100 });
+    }
+  } catch (error) {
+    console.warn("No fue posible cambiar el ambiente durante la sesión:", error);
+  }
+  queuePreferenceSave();
+});
+
+sessionAmbientVolume.addEventListener("input", () => {
+  const value = Number(sessionAmbientVolume.value);
+  sessionAmbientVolumeValue.textContent = `${value}%`;
+  ambientVolume.value = String(value);
+  ambientVolumeValue.textContent = `${value}%`;
+  if (activeConfig) activeConfig.ambientVolume = value / 100;
+  setAmbientVolume(value / 100);
   queuePreferenceSave();
 });
 

@@ -1,4 +1,4 @@
-# Respiración Guiada — V2.20
+# Respiración Guiada — V2.21.3
 
 Primera versión funcional del motor de sesión.
 
@@ -729,3 +729,68 @@ V2.20 no modifica:
 
 La pausa entre vueltas permanece al final de Opciones avanzadas y
 `Sin pausa adicional` sigue siendo el valor recomendado.
+
+
+## V2.21 — Presets de ambiente y modo enfoque
+
+### Ambiente
+Nueva capa de sonido opcional e independiente de la guía de voz y del sonido de inhalación/exhalación.
+Presets: Sin ambiente, Océano suave, Viento suave y Ruido profundo.
+Los ambientes se generan localmente con Web Audio y no requieren archivos externos ni conexión.
+El volumen se controla de forma independiente y se guarda como preferencia.
+
+### Modo enfoque
+Activado por defecto. Reduce visualmente elementos secundarios durante la práctica sin ocultar los controles importantes.
+Puede alternarse durante la sesión y no modifica el protocolo.
+
+### Protocolo intacto
+No cambian respiraciones, ritmos, retención, recuperación, conteo por voz, pausa entre vueltas, presets de sesión, Wake Lock, Firebase ni modo offline.
+`js/session.js`, `js/speech.js` y `js/audio.js` permanecen sin cambios.
+
+
+## V2.21.1 — Ajuste de ambientes
+
+Cambios respecto a V2.21:
+- `Viento suave` se reemplaza por `Río tranquilo`.
+- Se agrega `432 Hz + binaural`.
+  - canal izquierdo: 432 Hz;
+  - canal derecho: 438 Hz;
+  - diferencia binaural: 6 Hz;
+  - requiere audífonos estéreo para percibir el efecto binaural.
+- Se agrega `Tibetano ligero`, generado con tonos armónicos suaves de cuencos/campanas.
+- Se conserva `Océano suave`, `Ruido profundo` y `Sin ambiente`.
+- Todos los ambientes siguen generándose localmente con Web Audio.
+- `ambient.js` se agrega al App Shell de la PWA para disponibilidad offline.
+
+La opción 432 Hz + binaural se presenta exclusivamente como ambiente sonoro,
+sin atribuir efectos médicos, terapéuticos o de salud.
+
+El protocolo de respiración permanece intacto.
+
+
+## V2.21.2 — Ajuste de ambientes
+
+Cambios respecto a V2.21.1:
+- Se elimina `Océano suave`.
+- Se elimina `Río tranquilo`.
+- Se agrega `Piano minimalista`.
+  - notas suaves y espaciadas;
+  - generadas localmente con Web Audio;
+  - sin archivos externos;
+  - volumen ambiental independiente.
+- Se conservan:
+  - Sin ambiente
+  - Ruido profundo
+  - 432 Hz + binaural
+  - Tibetano ligero
+
+El protocolo de respiración permanece intacto.
+
+## V2.21.3 — Piano contemplativo, enfoque visible y estado de pantalla
+
+- Piano minimalista original con intervalos abiertos, silencios amplios y resonancias largas.
+- Modo enfoque mucho más evidente visualmente.
+- Indicadores claros: `Enfoque: activo/desactivado`.
+- Estado de Wake Lock visible: `Pantalla: activa ✓`, `normal`, `no disponible` o `lista para activar`.
+- Funciona en web y PWA cuando el navegador permite Screen Wake Lock.
+- El protocolo respiratorio permanece intacto.

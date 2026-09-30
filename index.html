@@ -34,7 +34,7 @@
           <span id="connectionStatus" class="connection-status">En línea</span>
           <span id="pendingSyncCount" class="pending-sync-count"></span>
         </div>
-        <div id="appVersion" class="app-version" aria-label="Versión de la aplicación">v2.20</div>
+        <div id="appVersion" class="app-version" aria-label="Versión de la aplicación">v2.21.3</div>
       </div>
       <div class="user-actions">
         <span id="roleBadge" class="role-badge hidden">ADMIN</span>
@@ -384,9 +384,51 @@
           <span id="preferencesStatus">Tus preferencias se guardan automáticamente.</span>
         </div>
 
+        <div class="ambient-card">
+          <div class="ambient-card-header">
+            <div>
+              <span class="setting-title">Ambiente</span>
+              <span class="setting-help">Opcional · independiente de la voz y del sonido de respiración.</span>
+            </div>
+          </div>
+
+          <div class="ambient-preset-grid" role="group" aria-label="Ambiente de sesión">
+            <button type="button" class="ambient-preset active" data-ambient="off"><strong>Sin ambiente</strong><span>Silencio adicional</span></button>
+            <button type="button" class="ambient-preset" data-ambient="piano">
+              <strong>Piano minimalista</strong>
+              <span>Notas suaves y espaciadas</span>
+            </button>
+            <button type="button" class="ambient-preset" data-ambient="deep"><strong>Ruido profundo</strong><span>Fondo grave uniforme</span></button>
+            <button type="button" class="ambient-preset" data-ambient="binaural432"><strong>432 Hz + binaural</strong><span>432 / 438 Hz · estéreo</span></button>
+            <button type="button" class="ambient-preset" data-ambient="tibetan"><strong>Tibetano ligero</strong><span>Cuencos y campanas suaves</span></button>
+          </div>
+
+          <div class="ambient-volume-row">
+            <label for="ambientVolume">Volumen del ambiente</label>
+            <input id="ambientVolume" type="range" min="0" max="100" step="5" value="18" />
+            <output id="ambientVolumeValue" for="ambientVolume">18%</output>
+          </div>
+
+          <p class="ambient-note">
+            El modo 432 Hz + binaural usa 432 Hz en un canal y 438 Hz en el otro.
+            Para percibir la diferencia binaural de 6 Hz se requieren audífonos estéreo.
+            Es una opción de ambiente sonoro, no una función terapéutica.
+          </p>
+        </div>
+
         <details class="advanced-session-options">
           <summary>Opciones avanzadas</summary>
           <div class="advanced-session-options-body">
+            <div class="advanced-option-block">
+              <label class="check-row advanced-check-row">
+                <input id="focusMode" type="checkbox" checked />
+                <span>
+                  Modo enfoque durante la sesión
+                  <small>Reduce elementos secundarios para concentrarte en la respiración. Los controles siguen disponibles.</small>
+                </span>
+              </label>
+            </div>
+
             <div class="advanced-option-block">
               <label class="check-row advanced-check-row">
                 <input id="keepScreenAwake" type="checkbox" checked />
@@ -450,10 +492,35 @@
           <label class="sound-switch screen-switch" for="sessionWakeLockToggle">
             <input id="sessionWakeLockToggle" type="checkbox" checked />
             <span class="sound-switch-ui" aria-hidden="true"></span>
-            <span id="sessionWakeLockLabel">Pantalla</span>
+            <span id="sessionWakeLockLabel">Pantalla activa</span>
           </label>
 
+          <button id="sessionFocusBtn" class="text-btn session-focus-btn" type="button" aria-pressed="true">Enfoque</button>
+          <button id="sessionAmbientBtn" class="text-btn session-ambient-btn" type="button" aria-expanded="false" aria-controls="sessionAmbientPanel">Ambiente</button>
           <button id="stopBtn" class="text-btn">Finalizar</button>
+        </div>
+      </div>
+
+      <div class="session-status-row" aria-live="polite">
+        <span id="focusStatusBadge" class="session-status-badge active">Enfoque: activo</span>
+        <span id="wakeStatusBadge" class="session-status-badge">Pantalla: comprobando…</span>
+      </div>
+
+      <div id="sessionAmbientPanel" class="session-ambient-panel hidden" aria-label="Controles de ambiente durante la sesión">
+        <div class="session-ambient-row">
+          <label for="sessionAmbientMode">Ambiente</label>
+          <select id="sessionAmbientMode">
+            <option value="off">Sin ambiente</option>
+            <option value="piano">Piano minimalista</option>
+            <option value="deep">Ruido profundo</option>
+            <option value="binaural432">432 Hz + binaural</option>
+            <option value="tibetan">Tibetano ligero</option>
+          </select>
+        </div>
+        <div class="session-ambient-row">
+          <label for="sessionAmbientVolume">Volumen</label>
+          <input id="sessionAmbientVolume" type="range" min="0" max="100" step="5" value="18" />
+          <output id="sessionAmbientVolumeValue" for="sessionAmbientVolume">18%</output>
         </div>
       </div>
 

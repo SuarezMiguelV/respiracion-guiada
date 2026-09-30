@@ -1,4 +1,4 @@
-const APP_VERSION = "2.20";
+const APP_VERSION = "2.21.3";
 const CACHE_VERSION = `respiracion-guiada-v${APP_VERSION}`;
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
@@ -13,6 +13,7 @@ const APP_SHELL = [
   "./js/session.js",
   "./js/speech.js",
   "./js/audio.js",
+  "./js/ambient.js",
   "./js/utils.js",
   "./js/session-store.js",
   "./js/pwa.js",

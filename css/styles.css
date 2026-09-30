@@ -722,7 +722,7 @@ input[type="checkbox"] {
 
 /* ===== V2.7 · Estadísticas y gráficas ===== */
 .history-summary-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .history-charts-grid {
@@ -1106,7 +1106,7 @@ input[type="checkbox"] {
 }
 
 .history-summary-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .history-list-actions {
@@ -1480,4 +1480,120 @@ input[type="checkbox"] {
   #stopBtn {
     order: 4;
   }
+}
+
+
+/* ===== V2.21 · Ambiente y modo enfoque ===== */
+.ambient-card{margin:14px 0 4px;padding:14px;border:1px solid rgba(167,201,244,.12);border-radius:15px;background:rgba(255,255,255,.025)}
+.ambient-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ambient-preset-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ambient-preset{min-height:72px;padding:10px;border:1px solid rgba(165,205,255,.13);border-radius:12px;background:rgba(255,255,255,.03);color:#eaf5ff;text-align:left;cursor:pointer}
+.ambient-preset strong,.ambient-preset span{display:block}.ambient-preset strong{margin-bottom:4px;font-size:.82rem}.ambient-preset span{color:#91afd3;font-size:.68rem}
+.ambient-preset.active{border-color:rgba(111,184,255,.58);background:rgba(75,143,228,.13)}
+.ambient-volume-row{display:grid;grid-template-columns:1fr minmax(120px,2fr) 48px;gap:10px;align-items:center;margin-top:12px}
+.ambient-volume-row output,.session-ambient-row output{color:#bcd7f3;font-size:.75rem;text-align:right}
+.session-ambient-panel{width:min(100%,680px);margin:-4px auto 12px;padding:12px;border:1px solid rgba(165,205,255,.12);border-radius:13px;background:rgba(4,20,46,.92);backdrop-filter:blur(12px)}
+.session-ambient-row{display:grid;grid-template-columns:90px 1fr 48px;gap:10px;align-items:center}.session-ambient-row+.session-ambient-row{margin-top:8px}.session-ambient-row select{padding:9px 10px}
+.session-focus-btn,.session-ambient-btn{border:1px solid rgba(175,210,255,.12);border-radius:10px}
+#sessionView.focus-mode .session-topbar{opacity:.62;transition:opacity .18s ease}#sessionView.focus-mode .session-topbar:hover,#sessionView.focus-mode .session-topbar:focus-within{opacity:1}
+#sessionView.focus-mode .phase-name{opacity:.55}#sessionView.focus-mode .phase-hint{opacity:.48}#sessionView.focus-mode #breathLabel{opacity:.70}#sessionView.focus-mode .phase-panel{justify-content:center}
+@media(max-width:680px){.ambient-preset-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ambient-volume-row{grid-template-columns:1fr 48px}.ambient-volume-row label{grid-column:1/-1}.session-ambient-panel{position:sticky;top:112px;z-index:18}.session-ambient-row{grid-template-columns:72px 1fr 44px}}
+
+
+.ambient-note {
+  margin: 11px 0 0;
+  color: #8faed3;
+  font-size: .72rem;
+  line-height: 1.45;
+}
+
+
+/* ===== V2.21.3 · Enfoque visible + estado de pantalla ===== */
+.session-status-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -8px 0 12px;
+}
+
+.session-status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 9px;
+  border: 1px solid rgba(170, 205, 247, .14);
+  border-radius: 999px;
+  background: rgba(255,255,255,.035);
+  color: #a9c5e6;
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.session-status-badge.active {
+  border-color: rgba(95, 178, 255, .42);
+  background: rgba(70, 145, 225, .12);
+  color: #d9edff;
+}
+
+.session-status-badge.off { opacity: .72; }
+
+.session-status-badge.unavailable {
+  border-color: rgba(255, 197, 110, .28);
+  color: #ffd59a;
+}
+
+.session-focus-btn.active-state {
+  border-color: rgba(95, 178, 255, .46);
+  background: rgba(74, 144, 230, .13);
+  color: #eef8ff;
+}
+
+#sessionWakeLockLabel.status-ok { color: #dff2ff; }
+#sessionWakeLockLabel.status-off { color: #a6bdd7; }
+#sessionWakeLockLabel.status-unavailable { color: #ffd59a; }
+
+#sessionView.focus-mode .session-topbar { opacity: .38; }
+#sessionView.focus-mode .session-status-row { opacity: .68; }
+#sessionView.focus-mode .phase-panel {
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+}
+#sessionView.focus-mode .phase-name {
+  opacity: .22;
+  letter-spacing: .16em;
+}
+#sessionView.focus-mode .phase-hint {
+  opacity: .18;
+  max-width: 460px;
+  margin-left: auto;
+  margin-right: auto;
+}
+#sessionView.focus-mode #breathLabel {
+  opacity: .40;
+  transform: scale(.96);
+}
+#sessionView.focus-mode #sessionAudioSettingsBtn,
+#sessionView.focus-mode #sessionAmbientBtn,
+#sessionView.focus-mode #stopBtn,
+#sessionView.focus-mode .session-actions .sound-switch {
+  opacity: .36;
+}
+#sessionView.focus-mode .session-actions .session-focus-btn { opacity: 1; }
+
+#sessionView.focus-mode .session-actions:hover .sound-switch,
+#sessionView.focus-mode .session-actions:focus-within .sound-switch,
+#sessionView.focus-mode .session-actions:hover #sessionAmbientBtn,
+#sessionView.focus-mode .session-actions:focus-within #sessionAmbientBtn,
+#sessionView.focus-mode .session-actions:hover #stopBtn,
+#sessionView.focus-mode .session-actions:focus-within #stopBtn {
+  opacity: 1;
+}
+
+@media (max-width: 680px) {
+  #sessionView.focus-mode .session-topbar { opacity: .30; }
+  #sessionView.focus-mode .phase-hint { display: none; }
+  #sessionView.focus-mode #breathLabel { opacity: .34; }
+  .session-status-row { margin-top: -4px; }
 }

@@ -116,8 +116,15 @@ async function writeSession({
     voiceCountInterval: [0, 5, 10].includes(Number(config.voiceCountInterval))
       ? Number(config.voiceCountInterval)
       : 10,
+    ambientMode: ["off", "deep", "binaural432", "tibetan", "piano"].includes(config.ambientMode) ? config.ambientMode : "off",
+    ambientVolume: Math.min(1, Math.max(0, Number(config.ambientVolume) || 0)),
+    focusMode: Boolean(config.focusMode),
+    keepScreenAwake: Boolean(config.keepScreenAwake),
     voiceEnabled: Boolean(config.voice),
+    voiceVolume: Math.min(1, Math.max(0, Number(config.voiceVolume) || 0)),
+    voiceName: typeof config.voiceName === "string" ? config.voiceName : "auto",
     breathingSoundEnabled: Boolean(config.breathingSound),
+    breathingSoundVolume: Math.min(1, Math.max(0, Number(config.breathingSoundVolume) || 0)),
     retentionsSeconds: values,
     averageRetentionSeconds,
     bestRetentionSeconds

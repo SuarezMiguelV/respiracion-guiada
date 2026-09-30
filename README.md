@@ -1,4 +1,4 @@
-# Respiración Guiada — V2.21.3
+# Respiración Guiada — V2.22
 
 Primera versión funcional del motor de sesión.
 
@@ -794,3 +794,58 @@ El protocolo de respiración permanece intacto.
 - Estado de Wake Lock visible: `Pantalla: activa ✓`, `normal`, `no disponible` o `lista para activar`.
 - Funciona en web y PWA cuando el navegador permite Screen Wake Lock.
 - El protocolo respiratorio permanece intacto.
+
+
+## V2.22 — Historial y progreso 2.0
+
+### Filtros de periodo
+El historial ahora puede filtrarse por:
+- 7 días
+- 30 días
+- 90 días
+- Todo
+
+El filtro actualiza:
+- resumen del periodo;
+- lista de sesiones;
+- gráfica de retención promedio;
+- gráfica de mejor retención;
+- promedio por vuelta;
+- actividad semanal reciente.
+
+### Detalle de sesión
+El detalle muestra:
+- preset;
+- respiraciones;
+- vueltas;
+- ritmo;
+- ambiente;
+- pausa entre vueltas;
+- conteo por voz;
+- guía de voz;
+- sonido de respiración;
+- modo enfoque;
+- promedio y mejor retención;
+- retenciones por vuelta.
+
+### Repetir esta configuración
+Desde el detalle se puede cargar una configuración anterior en la pantalla principal.
+La app no inicia automáticamente: el usuario puede revisarla antes de comenzar.
+
+En sesiones nuevas también se guardan, cuando están disponibles:
+- Wake Lock / pantalla activa;
+- volumen y voz seleccionada;
+- volumen del sonido de respiración.
+
+Las sesiones antiguas siguen siendo compatibles. Los campos que no existían se muestran como
+`No registrado` o conservan la preferencia actual al repetir la sesión.
+
+### Sin cambios en el protocolo
+V2.22 no modifica:
+- respiraciones ni ritmos;
+- retención;
+- recuperación de 15 s;
+- transición entre vueltas;
+- voz del protocolo;
+- sonidos ambientales;
+- modo offline.

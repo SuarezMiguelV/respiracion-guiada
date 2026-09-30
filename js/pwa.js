@@ -1,4 +1,4 @@
-const APP_VERSION = "2.21.3";
+const APP_VERSION = "2.22";
 
 const LOCAL_DEV_HOSTS = new Set(["127.0.0.1", "localhost"]);
 const isLocalDevelopment = LOCAL_DEV_HOSTS.has(window.location.hostname);

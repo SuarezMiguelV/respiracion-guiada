@@ -1597,3 +1597,111 @@ input[type="checkbox"] {
   #sessionView.focus-mode #breathLabel { opacity: .34; }
   .session-status-row { margin-top: -4px; }
 }
+
+
+/* ===== V2.22 · Historial y progreso 2.0 ===== */
+
+.history-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 14px;
+  margin: 4px 0 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(173, 205, 255, .12);
+  border-radius: 14px;
+  background: rgba(255,255,255,.035);
+}
+
+.history-filter-label {
+  display: block;
+  margin-bottom: 7px;
+  color: #9fc1ee;
+  font-size: .76rem;
+  font-weight: 800;
+}
+
+.history-period-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.history-period-btn {
+  min-height: 36px;
+  padding: 7px 11px;
+  border: 1px solid rgba(171, 209, 255, .16);
+  border-radius: 10px;
+  background: rgba(255,255,255,.04);
+  color: #cfe4ff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.history-period-btn.active {
+  border-color: rgba(95, 178, 255, .5);
+  background: rgba(68, 142, 229, .15);
+  color: #f3f9ff;
+}
+
+.history-period-summary {
+  color: #91afd5;
+  font-size: .78rem;
+  text-align: right;
+}
+
+.history-list-caption {
+  margin: 4px 0 0;
+  color: #91afd5;
+  font-size: .78rem;
+}
+
+.session-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 4px 0 20px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(173, 205, 255, .11);
+  background: rgba(255,255,255,.035);
+}
+
+.session-detail-actions .primary-btn {
+  min-width: 220px;
+}
+
+.session-detail-actions .field-help {
+  flex: 1 1 280px;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .history-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .history-period-summary {
+    text-align: left;
+  }
+
+  .history-period-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .history-period-btn {
+    width: 100%;
+  }
+
+  .session-detail-actions {
+    align-items: stretch;
+  }
+
+  .session-detail-actions .primary-btn {
+    width: 100%;
+    min-width: 0;
+  }
+}

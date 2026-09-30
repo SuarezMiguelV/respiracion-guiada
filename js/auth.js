@@ -25,6 +25,9 @@ export const DEFAULT_PREFERENCES = Object.freeze({
   interRoundPauseSeconds: 0,
   voiceCountInterval: 10,
   keepScreenAwake: true,
+  ambientMode: "off",
+  ambientVolume: 0.18,
+  focusMode: true,
   voice: true,
   voiceVolume: 1.0,
   voiceName: "auto",
@@ -38,6 +41,7 @@ const VALID_PACES = new Set(["verySlow", "slow", "normal", "fast"]);
 const VALID_PRESETS = new Set(["soft", "normal", "intense", "custom"]);
 const VALID_INTER_ROUND_PAUSES = new Set([0, 5, 10, 15, 30]);
 const VALID_VOICE_COUNT_INTERVALS = new Set([0, 5, 10]);
+const VALID_AMBIENT_MODES = new Set(["off", "deep", "binaural432", "tibetan", "piano"]);
 
 export function normalizePreferences(preferences = {}) {
   const breaths = Number(preferences.breaths);
@@ -46,6 +50,7 @@ export function normalizePreferences(preferences = {}) {
   const sessionPreset = String(preferences.sessionPreset || "");
   const interRoundPauseSeconds = Number(preferences.interRoundPauseSeconds);
   const voiceCountInterval = Number(preferences.voiceCountInterval);
+  const ambientMode = String(preferences.ambientMode || "");
 
   return {
     breaths: VALID_BREATHS.has(breaths) ? breaths : DEFAULT_PREFERENCES.breaths,
@@ -63,6 +68,15 @@ export function normalizePreferences(preferences = {}) {
     keepScreenAwake: typeof preferences.keepScreenAwake === "boolean"
       ? preferences.keepScreenAwake
       : DEFAULT_PREFERENCES.keepScreenAwake,
+    ambientMode: VALID_AMBIENT_MODES.has(ambientMode)
+      ? ambientMode
+      : DEFAULT_PREFERENCES.ambientMode,
+    ambientVolume: Number.isFinite(Number(preferences.ambientVolume))
+      ? Math.min(1, Math.max(0, Number(preferences.ambientVolume)))
+      : DEFAULT_PREFERENCES.ambientVolume,
+    focusMode: typeof preferences.focusMode === "boolean"
+      ? preferences.focusMode
+      : DEFAULT_PREFERENCES.focusMode,
     voice: typeof preferences.voice === "boolean"
       ? preferences.voice
       : DEFAULT_PREFERENCES.voice,

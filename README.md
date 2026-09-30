@@ -1,4 +1,4 @@
-# Respiración Guiada — V2.22
+# Respiración Guiada — V2.23
 
 Primera versión funcional del motor de sesión.
 
@@ -848,4 +848,54 @@ V2.22 no modifica:
 - transición entre vueltas;
 - voz del protocolo;
 - sonidos ambientales;
+- modo offline.
+
+
+## V2.23 — Experiencia de sesión y cierre final
+
+### Controles rápidos
+La barra superior de la sesión queda más limpia:
+- `Controles` abre/cierra voz, respiración, pantalla, enfoque y ambiente.
+- `Finalizar` permanece siempre disponible.
+- El panel se inicia cerrado en cada nueva sesión.
+
+### Resumen final
+El resumen ahora muestra:
+- vueltas;
+- respiraciones;
+- duración aproximada de la sesión;
+- retención promedio;
+- mayor retención;
+- ritmo;
+- preset;
+- ambiente;
+- pausa entre vueltas.
+
+Las retenciones muestran una referencia respecto del promedio de esa misma sesión,
+sin presentar la práctica como competencia.
+
+Acciones:
+- `Repetir configuración`
+- `Ajustar nueva sesión`
+- `Ver historial`
+
+### Móvil
+Se optimiza:
+- barra superior;
+- panel de controles;
+- tamaño de temporizadores;
+- círculo respiratorio;
+- tarjetas del resumen;
+- disposición para pantallas estrechas.
+
+### Protocolo
+No se modifican:
+- tiempos de respiración;
+- retención;
+- recuperación;
+- pausas;
+- voz;
+- audio de respiración;
+- ambientes;
+- Firebase;
 - modo offline.

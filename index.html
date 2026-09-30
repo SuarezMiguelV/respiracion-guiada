@@ -34,7 +34,7 @@
           <span id="connectionStatus" class="connection-status">En línea</span>
           <span id="pendingSyncCount" class="pending-sync-count"></span>
         </div>
-        <div id="appVersion" class="app-version" aria-label="Versión de la aplicación">v2.22</div>
+        <div id="appVersion" class="app-version" aria-label="Versión de la aplicación">v2.23</div>
       </div>
       <div class="user-actions">
         <span id="roleBadge" class="role-badge hidden">ADMIN</span>
@@ -99,445 +99,64 @@
     </section>
 
     <section id="adminView" class="view">
-      <div class="session-topbar">
-        <div>
-          <p class="eyebrow">Administración</p>
-          <h2 class="admin-title">Usuarios registrados</h2>
-        </div>
-        <button id="closeAdminBtn" class="secondary-btn" type="button">Volver</button>
-      </div>
+      <div class="session-topbar session-topbar-v223">
+        <span id="roundLabel">Vuelta 1 de 4</span>
 
-      <div class="card">
-        <p class="admin-help">
-          Panel de práctica en modo lectura. Todos los usuarios tienen las mismas funciones de respiración.
-          El rol admin solo permite consultar perfiles registrados.
-        </p>
-        <div id="adminUsers" class="admin-users">
-          <p class="muted">Cargando usuarios…</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="historyView" class="view">
-      <div class="history-header">
-        <div>
-          <p class="eyebrow">Progreso</p>
-          <h1>Historial y progreso</h1>
-          <p class="subtitle history-subtitle">Revisa tu práctica, compara periodos y repite configuraciones que te hayan funcionado bien.</p>
-        </div>
-        <button id="closeHistoryBtn" class="secondary-btn" type="button">Volver</button>
-      </div>
-
-      <div class="history-toolbar">
-        <div>
-          <span class="history-filter-label">Periodo</span>
-          <div class="history-period-filters" role="group" aria-label="Filtrar historial por periodo">
-            <button type="button" class="history-period-btn" data-history-period="7">7 días</button>
-            <button type="button" class="history-period-btn" data-history-period="30">30 días</button>
-            <button type="button" class="history-period-btn" data-history-period="90">90 días</button>
-            <button type="button" class="history-period-btn active" data-history-period="all" aria-pressed="true">Todo</button>
-          </div>
-        </div>
-        <span id="historyPeriodSummary" class="history-period-summary">Todo el historial cargado</span>
-      </div>
-
-      <div id="historyStatus" class="history-status" aria-live="polite"></div>
-
-      <div class="history-summary-grid">
-        <div class="history-stat-card"><span>Sesiones</span><strong id="historyTotalSessions">0</strong></div>
-        <div class="history-stat-card"><span>Promedio del periodo</span><strong id="historyAverageRetention">00:00</strong></div>
-        <div class="history-stat-card"><span>Mejor del periodo</span><strong id="historyBestRetention">00:00</strong></div>
-        <div class="history-stat-card"><span>Tiempo practicado</span><strong id="historyPracticeTime">0 s</strong></div>
-        <div class="history-stat-card"><span>Sesiones últimos 7 días</span><strong id="historyLast7Days">0</strong></div>
-        <div class="history-stat-card"><span>Vueltas acumuladas</span><strong id="historyTotalRounds">0</strong></div>
-        <div class="history-stat-card"><span>Racha actual</span><strong id="historyCurrentStreak">0 días</strong></div>
-        <div class="history-stat-card"><span>Días de práctica</span><strong id="historyPracticeDays">0</strong></div>
-      </div>
-
-      <div class="history-charts-grid">
-        <div class="card chart-card">
-          <div class="chart-card-header">
-            <div>
-              <p class="eyebrow">Tendencia</p>
-              <h2>Retención promedio</h2>
-              <p>Promedio de las vueltas completadas en cada sesión del periodo.</p>
-            </div>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="retentionTrendChart" aria-label="Retención promedio por sesión"></canvas>
-          </div>
-          <p id="trendChartEmpty" class="chart-empty hidden">Necesitas al menos una sesión guardada.</p>
-        </div>
-
-        <div class="card chart-card">
-          <div class="chart-card-header">
-            <div>
-              <p class="eyebrow">Tendencia</p>
-              <h2>Mejor retención</h2>
-              <p>Mejor retención registrada dentro de cada sesión del periodo.</p>
-            </div>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="bestRetentionTrendChart" aria-label="Mejor retención por sesión"></canvas>
-          </div>
-          <p id="bestTrendChartEmpty" class="chart-empty hidden">Necesitas al menos una sesión guardada.</p>
-        </div>
-
-        <div class="card chart-card">
-          <div class="chart-card-header">
-            <div>
-              <p class="eyebrow">Patrón por vuelta</p>
-              <h2>Promedio de retención por vuelta</h2>
-              <p>Promedio de cada vuelta completada dentro del periodo seleccionado.</p>
-            </div>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="roundAverageChart" aria-label="Promedio de retención por vuelta"></canvas>
-          </div>
-          <p id="roundChartEmpty" class="chart-empty hidden">Todavía no hay retenciones suficientes.</p>
-        </div>
-
-        <div class="card chart-card">
-          <div class="chart-card-header">
-            <div>
-              <p class="eyebrow">Constancia</p>
-              <h2>Actividad reciente</h2>
-              <p>Sesiones completadas por semana dentro de la actividad reciente.</p>
-            </div>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="weeklyActivityChart" aria-label="Sesiones completadas por semana"></canvas>
-          </div>
-          <p id="activityChartEmpty" class="chart-empty hidden">Todavía no hay actividad suficiente.</p>
+        <div class="session-primary-actions">
+          <button
+            id="sessionQuickControlsBtn"
+            class="secondary-btn compact-btn session-quick-btn"
+            type="button"
+            aria-expanded="false"
+            aria-controls="sessionQuickControlsPanel"
+          >
+            Controles
+          </button>
+          <button id="stopBtn" class="text-btn">Finalizar</button>
         </div>
       </div>
 
-      <div class="card history-card">
-        <div class="history-list-header">
-          <div>
-            <h2>Sesiones</h2>
-            <p id="historyListCaption" class="history-list-caption">Mostrando todas las sesiones cargadas.</p>
-          </div>
-          <div class="history-list-actions">
-            <button id="cleanupTestSessionsBtn" class="danger-btn compact-btn hidden" type="button">Eliminar pruebas</button>
-            <button id="refreshHistoryBtn" class="secondary-btn compact-btn" type="button">Actualizar</button>
-          </div>
-        </div>
-        <div id="historyList" class="history-list"><p class="muted">Cargando sesiones…</p></div>
-      </div>
-
-      <div id="sessionDetailCard" class="card session-detail-card hidden">
-        <div class="history-list-header">
-          <div><p class="eyebrow">Detalle</p><h2 id="detailTitle">Sesión</h2></div>
-          <button id="closeDetailBtn" class="text-btn" type="button">Cerrar</button>
-        </div>
-
-        <div class="detail-grid">
-          <div><span>Inicio</span><strong id="detailStartedAt">—</strong></div>
-          <div><span>Duración</span><strong id="detailDuration">—</strong></div>
-          <div><span>Preset</span><strong id="detailPreset">—</strong></div>
-          <div><span>Respiraciones</span><strong id="detailBreaths">—</strong></div>
-          <div><span>Vueltas</span><strong id="detailRounds">—</strong></div>
-          <div><span>Ritmo</span><strong id="detailPace">—</strong></div>
-          <div><span>Ambiente</span><strong id="detailAmbient">—</strong></div>
-          <div><span>Pausa entre vueltas</span><strong id="detailPause">—</strong></div>
-          <div><span>Conteo por voz</span><strong id="detailVoiceCount">—</strong></div>
-          <div><span>Guía de voz</span><strong id="detailVoiceEnabled">—</strong></div>
-          <div><span>Sonido de respiración</span><strong id="detailBreathingSound">—</strong></div>
-          <div><span>Modo enfoque</span><strong id="detailFocusMode">—</strong></div>
-          <div><span>Promedio</span><strong id="detailAverage">—</strong></div>
-          <div><span>Mejor retención</span><strong id="detailBest">—</strong></div>
-          <div><span>Estado</span><strong id="detailStatus">—</strong></div>
-        </div>
-
-        <div class="session-detail-actions">
-          <button id="repeatSessionConfigBtn" class="primary-btn" type="button">Repetir esta configuración</button>
-          <span class="field-help">Carga la configuración en la pantalla principal para que puedas revisarla antes de comenzar.</span>
-        </div>
-
-        <div class="retention-detail-block">
-          <h3>Retenciones por vuelta</h3>
-          <div id="detailRetentions" class="retention-list"></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="setupView" class="view">
-      <div class="hero">
-        <p class="eyebrow">Práctica personal</p>
-        <h1>Respiración Guiada</h1>
-        <p class="subtitle">
-          Sesiones guiadas de respiración, retención y recuperación.
-        </p>
-      </div>
-      <div id="testModeNotice" class="test-mode-notice hidden" role="status">
-        MODO PRUEBA · 3 respiraciones × 2 vueltas · esta sesión no se guardará
-      </div>
-
-      <div class="card safety-card">
-        <h2>Antes de comenzar</h2>
-        <p>
-          Practica sentado o acostado en un lugar seguro. No realices este ejercicio
-          conduciendo, de pie, dentro o cerca del agua, ni durante una actividad en la
-          que un mareo o pérdida de conciencia pueda causar una lesión.
-        </p>
-        <p>
-          No fuerces la respiración ni la retención. Si te sientes mal, detén la sesión.
-        </p>
-        <label class="check-row">
-          <input id="safetyCheck" type="checkbox" />
-          <span>He leído estas indicaciones y estoy en un lugar seguro.</span>
-        </label>
-      </div>
-
-      <div class="home-actions">
-        <button id="homeHistoryBtn" class="secondary-btn home-history-btn" type="button">Ver historial y progreso</button>
-      </div>
-
-      <div class="card settings-card">
-        <h2>Configurar sesión</h2>
-
-        <div class="preset-section" aria-labelledby="presetTitle">
-          <div class="setting-title-row">
-            <div>
-              <span id="presetTitle" class="setting-title">Sesión rápida</span>
-              <span class="setting-help">Elige una base y después puedes modificarla manualmente.</span>
-            </div>
-            <span id="customPresetChip" class="custom-preset-chip hidden">Personalizada</span>
-          </div>
-
-          <div class="preset-grid" role="group" aria-label="Presets de sesión">
-            <button type="button" class="preset-card" data-preset="soft">
-              <strong>Suave</strong>
-              <span>30 respiraciones · 4 vueltas · lento</span>
-            </button>
-            <button type="button" class="preset-card active" data-preset="normal">
-              <strong>Normal</strong>
-              <span>30 respiraciones · 4 vueltas · normal</span>
-            </button>
-            <button type="button" class="preset-card" data-preset="intense">
-              <strong>Intensa</strong>
-              <span>40 respiraciones · 5 vueltas · normal</span>
-            </button>
-          </div>
-
-          <p id="presetDescription" class="preset-description">Normal · configuración estándar.</p>
-        </div>
-
-        <label for="breathCount">Respiraciones por vuelta</label>
-        <select id="breathCount">
-          <option value="30" selected>30 respiraciones</option>
-          <option value="40">40 respiraciones</option>
-          <option value="50">50 respiraciones</option>
-          <option value="60">60 respiraciones</option>
-        </select>
-
-        <label for="roundCount">Número de vueltas</label>
-        <select id="roundCount">
-          <option value="4" selected>4 vueltas</option>
-          <option value="5">5 vueltas</option>
-          <option value="6">6 vueltas</option>
-          <option value="7">7 vueltas</option>
-          <option value="8">8 vueltas</option>
-          <option value="9">9 vueltas</option>
-          <option value="10">10 vueltas</option>
-        </select>
-
-        <label for="pace">Ritmo</label>
-        <select id="pace">
-          <option value="verySlow">Más lento · respiración profunda</option>
-          <option value="slow">Lento</option>
-          <option value="normal" selected>Normal</option>
-          <option value="fast">Rápido</option>
-        </select>
-
-        <label class="toggle-row">
-          <input id="voiceGuide" type="checkbox" checked />
-          <span>Guía de voz</span>
+      <div
+        id="sessionQuickControlsPanel"
+        class="session-actions session-quick-controls-panel hidden"
+        aria-label="Controles rápidos de la sesión"
+      >
+        <label class="sound-switch" for="sessionSoundToggle">
+          <input id="sessionSoundToggle" type="checkbox" checked />
+          <span class="sound-switch-ui" aria-hidden="true"></span>
+          <span id="sessionSoundLabel">Voz</span>
         </label>
 
-        <label class="toggle-row">
-          <input id="breathingSound" type="checkbox" />
-          <span>Sonido de respiración</span>
+        <label class="sound-switch" for="sessionBreathingSoundToggle">
+          <input id="sessionBreathingSoundToggle" type="checkbox" />
+          <span class="sound-switch-ui" aria-hidden="true"></span>
+          <span id="sessionBreathingSoundLabel">Respiración</span>
+        </label>
+
+        <label class="sound-switch screen-switch" for="sessionWakeLockToggle">
+          <input id="sessionWakeLockToggle" type="checkbox" checked />
+          <span class="sound-switch-ui" aria-hidden="true"></span>
+          <span id="sessionWakeLockLabel">Pantalla activa</span>
         </label>
 
         <button
-          id="setupAudioSettingsBtn"
-          class="audio-settings-btn"
+          id="sessionFocusBtn"
+          class="text-btn session-focus-btn"
           type="button"
-          aria-expanded="false"
-          aria-controls="setupAudioSettingsPanel"
+          aria-pressed="true"
         >
-          Volumen
+          Enfoque
         </button>
 
-        <div id="setupAudioSettingsPanel" class="audio-settings-panel hidden">
-          <div class="breathing-volume-control compact-volume-control">
-            <div class="volume-label-row">
-              <label for="voiceVolume">Guía de voz</label>
-              <output id="voiceVolumeValue" for="voiceVolume">100%</output>
-            </div>
-            <input
-              id="voiceVolume"
-              type="range"
-              min="0"
-              max="100"
-              step="5"
-              value="100"
-              aria-label="Volumen de la guía de voz"
-            />
-          </div>
-
-          <div class="voice-choice-control">
-            <label for="voiceChoice">Voz de la guía</label>
-            <select id="voiceChoice">
-              <option value="auto">Automática · relajante</option>
-            </select>
-            <div class="voice-choice-actions">
-              <span id="automaticVoiceName" class="voice-auto-name"></span>
-              <button id="testVoiceBtn" class="secondary-btn compact-btn" type="button">
-                Probar voz
-              </button>
-            </div>
-          </div>
-
-          <div class="breathing-volume-control compact-volume-control">
-            <div class="volume-label-row">
-              <label for="breathingSoundVolume">Respiración</label>
-              <output id="breathingSoundVolumeValue" for="breathingSoundVolume">35%</output>
-            </div>
-            <input
-              id="breathingSoundVolume"
-              type="range"
-              min="0"
-              max="100"
-              step="5"
-              value="35"
-              aria-label="Volumen del sonido de respiración"
-            />
-          </div>
-        </div>
-
-        <div class="preferences-save-row">
-          <span aria-hidden="true">☁</span>
-          <span id="preferencesStatus">Tus preferencias se guardan automáticamente.</span>
-        </div>
-
-        <div class="ambient-card">
-          <div class="ambient-card-header">
-            <div>
-              <span class="setting-title">Ambiente</span>
-              <span class="setting-help">Opcional · independiente de la voz y del sonido de respiración.</span>
-            </div>
-          </div>
-
-          <div class="ambient-preset-grid" role="group" aria-label="Ambiente de sesión">
-            <button type="button" class="ambient-preset active" data-ambient="off"><strong>Sin ambiente</strong><span>Silencio adicional</span></button>
-            <button type="button" class="ambient-preset" data-ambient="piano">
-              <strong>Piano minimalista</strong>
-              <span>Notas suaves y espaciadas</span>
-            </button>
-            <button type="button" class="ambient-preset" data-ambient="deep"><strong>Ruido profundo</strong><span>Fondo grave uniforme</span></button>
-            <button type="button" class="ambient-preset" data-ambient="binaural432"><strong>432 Hz + binaural</strong><span>432 / 438 Hz · estéreo</span></button>
-            <button type="button" class="ambient-preset" data-ambient="tibetan"><strong>Tibetano ligero</strong><span>Cuencos y campanas suaves</span></button>
-          </div>
-
-          <div class="ambient-volume-row">
-            <label for="ambientVolume">Volumen del ambiente</label>
-            <input id="ambientVolume" type="range" min="0" max="100" step="5" value="18" />
-            <output id="ambientVolumeValue" for="ambientVolume">18%</output>
-          </div>
-
-          <p class="ambient-note">
-            El modo 432 Hz + binaural usa 432 Hz en un canal y 438 Hz en el otro.
-            Para percibir la diferencia binaural de 6 Hz se requieren audífonos estéreo.
-            Es una opción de ambiente sonoro, no una función terapéutica.
-          </p>
-        </div>
-
-        <details class="advanced-session-options">
-          <summary>Opciones avanzadas</summary>
-          <div class="advanced-session-options-body">
-            <div class="advanced-option-block">
-              <label class="check-row advanced-check-row">
-                <input id="focusMode" type="checkbox" checked />
-                <span>
-                  Modo enfoque durante la sesión
-                  <small>Reduce elementos secundarios para concentrarte en la respiración. Los controles siguen disponibles.</small>
-                </span>
-              </label>
-            </div>
-
-            <div class="advanced-option-block">
-              <label class="check-row advanced-check-row">
-                <input id="keepScreenAwake" type="checkbox" checked />
-                <span>
-                  Mantener pantalla activa durante la sesión
-                  <small>Evita que el dispositivo apague la pantalla cuando el navegador lo permite.</small>
-                </span>
-              </label>
-            </div>
-
-            <div class="advanced-option-block">
-              <label for="voiceCountInterval">Conteo por voz</label>
-              <select id="voiceCountInterval">
-                <option value="10" selected>Cada 10 respiraciones · recomendado</option>
-                <option value="5">Cada 5 respiraciones</option>
-                <option value="0">Solo anunciar “Última”</option>
-              </select>
-              <p class="field-help advanced-help">
-                “Inhala” y “Exhala” se mantienen en cada respiración; esta opción solo cambia cuándo se dice el número.
-              </p>
-            </div>
-
-            <div class="advanced-option-block advanced-option-last">
-              <label for="interRoundPause">Pausa entre vueltas</label>
-              <select id="interRoundPause">
-                <option value="0" selected>Sin pausa adicional</option>
-                <option value="5">5 segundos</option>
-                <option value="10">10 segundos</option>
-                <option value="15">15 segundos</option>
-                <option value="30">30 segundos</option>
-              </select>
-              <p class="field-help advanced-help">
-                Se aplica después de la recuperación de 15 s y antes de comenzar la siguiente vuelta.
-                <strong>Uso recomendado: sin pausa adicional.</strong>
-              </p>
-            </div>
-          </div>
-        </details>
-
-        <button id="startBtn" class="primary-btn" disabled>Comenzar sesión</button>
-      </div>
-    </section>
-
-    <section id="sessionView" class="view">
-      <div class="session-topbar">
-        <span id="roundLabel">Vuelta 1 de 4</span>
-
-        <div class="session-actions">
-          <label class="sound-switch" for="sessionSoundToggle">
-            <input id="sessionSoundToggle" type="checkbox" checked />
-            <span class="sound-switch-ui" aria-hidden="true"></span>
-            <span id="sessionSoundLabel">Voz</span>
-          </label>
-
-          <label class="sound-switch" for="sessionBreathingSoundToggle">
-            <input id="sessionBreathingSoundToggle" type="checkbox" />
-            <span class="sound-switch-ui" aria-hidden="true"></span>
-            <span id="sessionBreathingSoundLabel">Respiración</span>
-          </label>
-
-          <label class="sound-switch screen-switch" for="sessionWakeLockToggle">
-            <input id="sessionWakeLockToggle" type="checkbox" checked />
-            <span class="sound-switch-ui" aria-hidden="true"></span>
-            <span id="sessionWakeLockLabel">Pantalla activa</span>
-          </label>
-
-          <button id="sessionFocusBtn" class="text-btn session-focus-btn" type="button" aria-pressed="true">Enfoque</button>
-          <button id="sessionAmbientBtn" class="text-btn session-ambient-btn" type="button" aria-expanded="false" aria-controls="sessionAmbientPanel">Ambiente</button>
-          <button id="stopBtn" class="text-btn">Finalizar</button>
-        </div>
+        <button
+          id="sessionAmbientBtn"
+          class="text-btn session-ambient-btn"
+          type="button"
+          aria-expanded="false"
+          aria-controls="sessionAmbientPanel"
+        >
+          Ambiente
+        </button>
       </div>
 
       <div class="session-status-row" aria-live="polite">
@@ -648,13 +267,14 @@
     </section>
 
     <section id="summaryView" class="view">
-      <div class="hero compact">
+      <div class="hero compact summary-hero">
         <p class="eyebrow">Sesión terminada</p>
         <h1>Resumen</h1>
+        <p class="summary-intro">Tus datos de esta sesión, sin convertir la práctica en una competencia.</p>
       </div>
 
-      <div class="card">
-        <div class="summary-grid">
+      <div class="card summary-main-card">
+        <div class="summary-grid summary-grid-v223">
           <div>
             <span class="metric-label">Vueltas</span>
             <strong id="summaryRounds">0</strong>
@@ -662,6 +282,10 @@
           <div>
             <span class="metric-label">Respiraciones</span>
             <strong id="summaryBreaths">0</strong>
+          </div>
+          <div>
+            <span class="metric-label">Duración</span>
+            <strong id="summaryDuration">00:00</strong>
           </div>
           <div>
             <span class="metric-label">Promedio</span>
@@ -672,8 +296,16 @@
             <strong id="summaryBest">00:00</strong>
           </div>
           <div>
+            <span class="metric-label">Ritmo</span>
+            <strong id="summaryPace">Normal</strong>
+          </div>
+          <div>
             <span class="metric-label">Preset</span>
             <strong id="summaryPreset">Normal</strong>
+          </div>
+          <div>
+            <span class="metric-label">Ambiente</span>
+            <strong id="summaryAmbient">Sin ambiente</strong>
           </div>
           <div>
             <span class="metric-label">Pausa entre vueltas</span>
@@ -683,12 +315,28 @@
       </div>
 
       <div class="card">
-        <h2>Retenciones</h2>
+        <div class="summary-section-heading">
+          <div>
+            <h2>Retenciones</h2>
+            <p class="muted">Tiempo registrado en cada vuelta.</p>
+          </div>
+        </div>
         <div id="retentionList" class="retention-list"></div>
       </div>
 
       <div id="saveStatus" class="save-status" aria-live="polite"></div>
-      <button id="newSessionBtn" class="primary-btn">Nueva sesión</button>
+
+      <div class="summary-actions">
+        <button id="summaryRepeatBtn" class="primary-btn" type="button">
+          Repetir configuración
+        </button>
+        <button id="newSessionBtn" class="secondary-btn" type="button">
+          Ajustar nueva sesión
+        </button>
+        <button id="summaryHistoryBtn" class="text-btn summary-history-btn" type="button">
+          Ver historial
+        </button>
+      </div>
     </section>
   </main>
 

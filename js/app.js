@@ -154,6 +154,8 @@ const startBtn = $("#startBtn");
 const stopBtn = $("#stopBtn");
 const sessionWakeLockToggle = $("#sessionWakeLockToggle");
 const sessionWakeLockLabel = $("#sessionWakeLockLabel");
+const sessionQuickControlsBtn = $("#sessionQuickControlsBtn");
+const sessionQuickControlsPanel = $("#sessionQuickControlsPanel");
 const sessionFocusBtn = $("#sessionFocusBtn");
 const sessionAmbientBtn = $("#sessionAmbientBtn");
 const sessionAmbientPanel = $("#sessionAmbientPanel");
@@ -197,11 +199,16 @@ const recoveryInstruction = $("#recoveryInstruction");
 
 const summaryRounds = $("#summaryRounds");
 const summaryBreaths = $("#summaryBreaths");
+const summaryDuration = $("#summaryDuration");
 const summaryAverage = $("#summaryAverage");
 const summaryBest = $("#summaryBest");
+const summaryPace = $("#summaryPace");
 const summaryPreset = $("#summaryPreset");
+const summaryAmbient = $("#summaryAmbient");
 const summaryPause = $("#summaryPause");
 const retentionList = $("#retentionList");
+const summaryRepeatBtn = $("#summaryRepeatBtn");
+const summaryHistoryBtn = $("#summaryHistoryBtn");
 const newSessionBtn = $("#newSessionBtn");
 const saveStatus = $("#saveStatus");
 const connectionStatus = $("#connectionStatus");
@@ -1501,6 +1508,14 @@ const engine = new SessionEngine({
     sessionBreathingSoundLabel.textContent = config.breathingSound ? "Respiración" : "Sin respiración";
 
     showView(sessionView);
+
+    sessionQuickControlsPanel.classList.add("hidden");
+    sessionQuickControlsBtn.setAttribute("aria-expanded", "false");
+    sessionQuickControlsBtn.textContent = "Controles";
+
+    sessionAmbientPanel.classList.add("hidden");
+    sessionAmbientBtn.setAttribute("aria-expanded", "false");
+
     showPhase("breathing");
     breathLabel.textContent = `Respiración 0 de ${config.breaths}`;
     breathingInstruction.textContent = "PREPÁRATE";
@@ -1513,8 +1528,6 @@ const engine = new SessionEngine({
     requestSessionWakeLock();
 
     applyFocusMode(config.focusMode);
-    sessionAmbientPanel.classList.add("hidden");
-    sessionAmbientBtn.setAttribute("aria-expanded", "false");
     sessionAmbientMode.value = config.ambientMode || "off";
     sessionAmbientVolume.value = String(Math.round((config.ambientVolume ?? 0.18) * 100));
     sessionAmbientVolumeValue.textContent = `${sessionAmbientVolume.value}%`;
@@ -1707,20 +1720,36 @@ function renderSummary(config, retentions) {
   const avg = average(retentions);
   const best = retentions.length ? Math.max(...retentions) : 0;
 
+  const durationSeconds = sessionStartedAt
+    ? Math.max(0, (Date.now() - sessionStartedAt.getTime()) / 1000)
+    : 0;
+
   summaryRounds.textContent = retentions.length;
   summaryBreaths.textContent = `${config.breaths} × ${retentions.length}`;
+  summaryDuration.textContent = formatClock(durationSeconds);
   summaryAverage.textContent = formatClock(avg);
   summaryBest.textContent = formatClock(best);
+  summaryPace.textContent = paceLabel(config.pace);
   summaryPreset.textContent = presetLabel(config.sessionPreset);
+  summaryAmbient.textContent = ambientModeLabel(config.ambientMode);
   summaryPause.textContent = pauseLabel(config.interRoundPauseSeconds);
 
   retentionList.innerHTML = "";
 
   retentions.forEach((seconds, index) => {
     const row = document.createElement("div");
-    row.className = "retention-row";
+    row.className = "retention-row retention-row-v223";
+
+    const delta = avg > 0 ? seconds - avg : 0;
+    const deltaLabel = Math.abs(delta) < 0.5
+      ? "≈ promedio"
+      : `${delta > 0 ? "+" : "−"}${formatClock(Math.abs(delta))} vs. promedio`;
+
     row.innerHTML = `
-      <span>Vuelta ${index + 1}</span>
+      <div>
+        <span>Vuelta ${index + 1}</span>
+        <small>${deltaLabel}</small>
+      </div>
       <strong>${formatClock(seconds)}</strong>
     `;
     retentionList.appendChild(row);
@@ -2052,6 +2081,19 @@ voiceVolume.addEventListener("input", () => {
   queuePreferenceSave();
 });
 
+sessionQuickControlsBtn.addEventListener("click", () => {
+  const opening = sessionQuickControlsPanel.classList.contains("hidden");
+
+  sessionQuickControlsPanel.classList.toggle("hidden", !opening);
+  sessionQuickControlsBtn.setAttribute("aria-expanded", String(opening));
+  sessionQuickControlsBtn.textContent = opening ? "Cerrar controles" : "Controles";
+
+  if (!opening) {
+    sessionAmbientPanel.classList.add("hidden");
+    sessionAmbientBtn.setAttribute("aria-expanded", "false");
+  }
+});
+
 sessionSoundToggle.addEventListener("change", () => {
   applyVoiceState(sessionSoundToggle.checked);
   queuePreferenceSave();
@@ -2122,6 +2164,7 @@ sessionAmbientBtn.addEventListener("click", () => {
   const opening = sessionAmbientPanel.classList.contains("hidden");
   sessionAmbientPanel.classList.toggle("hidden", !opening);
   sessionAmbientBtn.setAttribute("aria-expanded", String(opening));
+  sessionAmbientBtn.textContent = opening ? "Cerrar ambiente" : "Ambiente";
 });
 
 sessionAmbientMode.addEventListener("change", async () => {
@@ -2186,6 +2229,22 @@ stopBtn.addEventListener("click", () => {
   if (confirmStop) engine.stop(true);
 });
 
-newSessionBtn.addEventListener("click", () => {
+summaryRepeatBtn.addEventListener("click", () => {
+  setPreferencesStatus(
+    "Se mantiene la configuración de tu última sesión. Revísala antes de comenzar.",
+    "saved"
+  );
   showView(setupView);
+  setupView.scrollIntoView({ behavior: "smooth", block: "start" });
 });
+
+newSessionBtn.addEventListener("click", () => {
+  setPreferencesStatus(
+    "Puedes ajustar cualquier opción antes de comenzar una nueva sesión.",
+    ""
+  );
+  showView(setupView);
+  setupView.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+summaryHistoryBtn.addEventListener("click", openHistory);

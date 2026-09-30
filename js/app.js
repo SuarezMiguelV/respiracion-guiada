@@ -81,6 +81,15 @@ const adminUsers = $("#adminUsers");
 const closeHistoryBtn = $("#closeHistoryBtn");
 const refreshHistoryBtn = $("#refreshHistoryBtn");
 const homeHistoryBtn = $("#homeHistoryBtn");
+const quickStartCard = $("#quickStartCard");
+const quickStartDate = $("#quickStartDate");
+const quickStartEmpty = $("#quickStartEmpty");
+const quickStartContent = $("#quickStartContent");
+const quickStartDuration = $("#quickStartDuration");
+const quickStartAverage = $("#quickStartAverage");
+const quickStartConfig = $("#quickStartConfig");
+const quickStartEnvironment = $("#quickStartEnvironment");
+const repeatLastSessionBtn = $("#repeatLastSessionBtn");
 const historyStatus = $("#historyStatus");
 const historyList = $("#historyList");
 const historyListCaption = $("#historyListCaption");
@@ -226,6 +235,7 @@ let weeklyActivityChart = null;
 let lastLoadedSessions = [];
 let historyPeriod = "all";
 let selectedHistorySession = null;
+let latestCompletedSession = null;
 let preferenceSaveTimer = null;
 let applyingPreferences = false;
 let selectedPreset = "normal";
@@ -730,6 +740,7 @@ async function trySyncPendingSessions() {
     updateConnectionUi();
 
     if (result.synced > 0) {
+      loadQuickStart();
       saveStatus.textContent = result.remaining
         ? `${result.synced} sincronizada(s); ${result.remaining} pendiente(s).`
         : `${result.synced} sesión(es) pendiente(s) sincronizada(s).`;
@@ -1483,6 +1494,66 @@ function applySessionConfigurationFromHistory(session) {
   setupView.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+
+function renderQuickStart(session) {
+  latestCompletedSession = session || null;
+
+  if (!session) {
+    quickStartDate.textContent = "Sin sesiones todavía";
+    quickStartEmpty.classList.remove("hidden");
+    quickStartContent.classList.add("hidden");
+    repeatLastSessionBtn.disabled = true;
+    return;
+  }
+
+  quickStartDate.textContent = formatSessionDate(session.startedAt);
+  quickStartEmpty.classList.add("hidden");
+  quickStartContent.classList.remove("hidden");
+  repeatLastSessionBtn.disabled = false;
+
+  quickStartDuration.textContent = formatLongDuration(session.durationSeconds);
+
+  const averageRetention = Number(session.averageRetentionSeconds);
+  quickStartAverage.textContent = Number.isFinite(averageRetention)
+    ? formatClock(averageRetention)
+    : "No registrado";
+
+  const breaths = Number(session.breathsPerRound);
+  const rounds = Number(session.plannedRounds);
+  const breathsLabel = Number.isFinite(breaths) ? `${breaths} respiraciones` : "Respiraciones no registradas";
+  const roundsLabel = Number.isFinite(rounds) ? `${rounds} vueltas` : "Vueltas no registradas";
+
+  quickStartConfig.textContent =
+    `${presetLabel(session.sessionPreset)} · ${breathsLabel} · ${roundsLabel} · ${paceLabel(session.pace)}`;
+
+  quickStartEnvironment.textContent =
+    `${ambientModeLabel(session.ambientMode)} · ${pauseLabel(session.interRoundPauseSeconds)}`;
+}
+
+async function loadQuickStart() {
+  if (!currentUser) {
+    renderQuickStart(null);
+    return;
+  }
+
+  quickStartDate.textContent = "Cargando…";
+
+  try {
+    const sessions = await listCompletedSessions(currentUser.uid, 1);
+    renderQuickStart(sessions[0] || null);
+  } catch (error) {
+    console.warn("No fue posible cargar la última práctica:", error);
+    latestCompletedSession = null;
+    quickStartDate.textContent = "No disponible";
+    quickStartEmpty.classList.remove("hidden");
+    quickStartContent.classList.add("hidden");
+    quickStartEmpty.innerHTML = `
+      <strong>No fue posible consultar la última práctica.</strong>
+      <span>Puedes seguir configurando y realizando sesiones normalmente.</span>
+    `;
+  }
+}
+
 async function openHistory() {
   if (!currentUser) return;
   showView(historyView);
@@ -1707,6 +1778,10 @@ const engine = new SessionEngine({
     }
 
     updateConnectionUi();
+
+    if (navigator.onLine) {
+      loadQuickStart();
+    }
   },
 
   onStopped() {
@@ -1833,6 +1908,12 @@ closeAdminBtn.addEventListener("click", () => {
 
 historyBtn.addEventListener("click", openHistory);
 homeHistoryBtn.addEventListener("click", openHistory);
+
+repeatLastSessionBtn.addEventListener("click", () => {
+  if (!latestCompletedSession) return;
+  applySessionConfigurationFromHistory(latestCompletedSession);
+});
+
 refreshHistoryBtn.addEventListener("click", loadHistory);
 
 historyPeriodButtons.forEach(button => {
@@ -1913,6 +1994,8 @@ watchAuth(async user => {
 
   if (!user) {
     currentProfile = null;
+    latestCompletedSession = null;
+    renderQuickStart(null);
     window.clearTimeout(preferenceSaveTimer);
     preferenceSaveTimer = null;
     userBar.classList.add("hidden");
@@ -1926,6 +2009,7 @@ watchAuth(async user => {
     applyUserPreferences(currentProfile.preferences);
     showView(setupView);
     updateConnectionUi();
+    loadQuickStart();
     trySyncPendingSessions();
   } catch (error) {
     currentProfile = null;

@@ -34,7 +34,7 @@
           <span id="connectionStatus" class="connection-status">En línea</span>
           <span id="pendingSyncCount" class="pending-sync-count"></span>
         </div>
-        <div id="appVersion" class="app-version" aria-label="Versión de la aplicación">v2.23.1</div>
+        <div id="appVersion" class="app-version" aria-label="Versión de la aplicación">v2.24</div>
       </div>
       <div class="user-actions">
         <span id="roleBadge" class="role-badge hidden">ADMIN</span>
@@ -292,6 +292,47 @@
 
       <div class="home-actions">
         <button id="homeHistoryBtn" class="secondary-btn home-history-btn" type="button">Ver historial y progreso</button>
+      </div>
+
+      <div id="quickStartCard" class="card quick-start-card" aria-live="polite">
+        <div class="quick-start-header">
+          <div>
+            <p class="quick-start-eyebrow">Inicio rápido</p>
+            <h2>Última práctica</h2>
+          </div>
+          <span id="quickStartDate" class="quick-start-date">Sin sesiones todavía</span>
+        </div>
+
+        <div id="quickStartEmpty" class="quick-start-empty">
+          <strong>Aún no hay una práctica guardada.</strong>
+          <span>Cuando completes tu primera sesión aparecerán aquí su resumen y configuración.</span>
+        </div>
+
+        <div id="quickStartContent" class="quick-start-content hidden">
+          <div class="quick-start-metrics">
+            <div>
+              <span>Duración</span>
+              <strong id="quickStartDuration">—</strong>
+            </div>
+            <div>
+              <span>Retención promedio</span>
+              <strong id="quickStartAverage">—</strong>
+            </div>
+          </div>
+
+          <div class="quick-start-config">
+            <span class="metric-label">Última configuración usada</span>
+            <strong id="quickStartConfig">—</strong>
+            <span id="quickStartEnvironment" class="quick-start-secondary">—</span>
+          </div>
+
+          <button id="repeatLastSessionBtn" class="primary-btn quick-start-repeat" type="button">
+            Repetir última sesión
+          </button>
+          <p class="field-help quick-start-help">
+            Carga esa configuración para que puedas revisarla antes de comenzar. La sesión no inicia automáticamente.
+          </p>
+        </div>
       </div>
 
       <div class="card settings-card">

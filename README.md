@@ -1,4 +1,4 @@
-# Respiración Guiada — V2.23.1
+# Respiración Guiada — V2.24
 
 Primera versión funcional del motor de sesión.
 
@@ -865,5 +865,39 @@ Agrega:
 - resumen final ampliado;
 - acciones Repetir configuración / Ajustar nueva sesión / Ver historial;
 - optimización responsive.
+
+El protocolo respiratorio permanece intacto.
+
+
+## V2.24 — Inicio rápido
+
+La pantalla principal incorpora una tarjeta `Última práctica`.
+
+Cuando existe una sesión guardada muestra:
+- fecha y hora;
+- duración;
+- retención promedio;
+- preset;
+- respiraciones;
+- vueltas;
+- ritmo;
+- ambiente;
+- pausa entre vueltas.
+
+### Repetir última sesión
+El botón `Repetir última sesión` carga la configuración de la sesión más reciente
+en la pantalla principal.
+
+Importante:
+- no inicia automáticamente;
+- el usuario puede revisar y modificar los valores;
+- la confirmación de seguridad sigue siendo necesaria antes de comenzar.
+
+Si aún no hay sesiones guardadas se muestra un estado vacío explicativo.
+
+La tarjeta se actualiza:
+- al iniciar sesión;
+- después de guardar una práctica en línea;
+- después de sincronizar sesiones pendientes.
 
 El protocolo respiratorio permanece intacto.

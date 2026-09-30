@@ -1841,3 +1841,126 @@ input[type="checkbox"] {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ===== V2.24 · Inicio rápido / Última práctica ===== */
+
+.quick-start-card {
+  display: grid;
+  gap: 14px;
+  border-color: rgba(111, 184, 255, .16);
+  background:
+    radial-gradient(circle at top right, rgba(71, 147, 235, .09), transparent 42%),
+    rgba(255,255,255,.035);
+}
+
+.quick-start-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.quick-start-header h2 {
+  margin: 2px 0 0;
+}
+
+.quick-start-eyebrow {
+  margin: 0;
+  color: #8fb6df;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.quick-start-date {
+  color: #95b2d3;
+  font-size: .76rem;
+  text-align: right;
+}
+
+.quick-start-empty {
+  display: grid;
+  gap: 4px;
+  padding: 13px 14px;
+  border: 1px dashed rgba(167, 201, 244, .13);
+  border-radius: 13px;
+  color: #9eb8d7;
+}
+
+.quick-start-empty strong {
+  color: #dcecff;
+}
+
+.quick-start-content {
+  display: grid;
+  gap: 13px;
+}
+
+.quick-start-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.quick-start-metrics > div,
+.quick-start-config {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(165, 205, 255, .10);
+  border-radius: 13px;
+  background: rgba(255,255,255,.025);
+}
+
+.quick-start-metrics span,
+.quick-start-config .metric-label {
+  display: block;
+  color: #8faed3;
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.quick-start-metrics strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 1.18rem;
+}
+
+.quick-start-config strong {
+  display: block;
+  margin-top: 5px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.quick-start-secondary {
+  display: block;
+  margin-top: 5px;
+  color: #9eb9d9;
+  font-size: .76rem;
+}
+
+.quick-start-repeat {
+  width: 100%;
+}
+
+.quick-start-help {
+  margin: -5px 0 0;
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  .quick-start-header {
+    display: grid;
+    gap: 5px;
+  }
+
+  .quick-start-date {
+    text-align: left;
+  }
+
+  .quick-start-metrics {
+    grid-template-columns: 1fr;
+  }
+}

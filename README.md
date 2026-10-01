@@ -1,4 +1,4 @@
-# Respiración Guiada — V2.24
+# Respiración Guiada — V2.25 RC
 
 Primera versión funcional del motor de sesión.
 
@@ -901,3 +901,43 @@ La tarjeta se actualiza:
 - después de sincronizar sesiones pendientes.
 
 El protocolo respiratorio permanece intacto.
+
+
+## V2.25 RC — Release Candidate para Go Live
+
+Esta versión concentra los últimos cambios funcionales antes de V3.0.
+
+### Constancia semanal
+- resumen de días con práctica;
+- sesiones de la semana;
+- tiempo practicado;
+- calendario de lunes a domingo;
+- resumen semanal también visible en `Última práctica`.
+
+La constancia no utiliza metas de retención ni mensajes competitivos.
+
+### Exportación y respaldo
+Desde `Historial y progreso`:
+- `Exportar CSV` crea un archivo compatible con Excel;
+- `Respaldo JSON` conserva los principales campos de cada sesión;
+- ninguno de los dos modifica Firebase;
+- no se exportan contraseña ni credenciales;
+- actualmente se exportan las sesiones cargadas por la aplicación, hasta 250.
+
+### Seguridad de interfaz
+- cerrar sesión requiere confirmación;
+- la eliminación de sesiones de prueba mantiene confirmación explícita.
+
+### Congelamiento del protocolo
+V2.25 RC no modifica:
+- motor de sesión;
+- tiempos de respiración;
+- retención;
+- recuperación;
+- voz;
+- audio de respiración;
+- ambientes;
+- almacenamiento de sesiones;
+- reglas de Firebase.
+
+Antes de declarar V3.0 se debe completar `GO-LIVE-CHECKLIST.md`.

@@ -1964,3 +1964,193 @@ input[type="checkbox"] {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ===== V2.25 RC · Go Live readiness ===== */
+
+.quick-start-week {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(112, 177, 255, .06);
+  color: #91b0d4;
+  font-size: .76rem;
+}
+
+.quick-start-week strong {
+  color: #dcecff;
+  text-align: right;
+}
+
+.weekly-practice-card {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.weekly-practice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.weekly-practice-header h2 {
+  margin-bottom: 4px;
+}
+
+.weekly-practice-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(74px, 1fr));
+  gap: 8px;
+}
+
+.weekly-practice-summary > div {
+  padding: 9px 11px;
+  border: 1px solid rgba(165, 205, 255, .10);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .025);
+  text-align: center;
+}
+
+.weekly-practice-summary span {
+  display: block;
+  color: #8faed3;
+  font-size: .68rem;
+}
+
+.weekly-practice-summary strong {
+  display: block;
+  margin-top: 3px;
+  font-size: .94rem;
+}
+
+.weekly-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.weekly-day {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 9px 4px;
+  border: 1px solid rgba(165, 205, 255, .09);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .02);
+  color: #718ead;
+}
+
+.weekly-day > span {
+  font-size: .66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.weekly-day > strong {
+  color: #a9bfd8;
+  font-size: 1rem;
+}
+
+.weekly-day > small {
+  min-height: 1em;
+  color: #728eac;
+  font-size: .60rem;
+  text-align: center;
+}
+
+.weekly-day.practiced {
+  border-color: rgba(124, 190, 255, .28);
+  background: rgba(78, 157, 244, .10);
+  color: #9ecaff;
+}
+
+.weekly-day.practiced > strong {
+  color: #e7f3ff;
+}
+
+.weekly-day.practiced > small {
+  color: #9ecaff;
+}
+
+.weekly-practice-note {
+  margin: 0;
+}
+
+.history-export-note {
+  margin: 12px 0 0;
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  .weekly-practice-header {
+    display: grid;
+  }
+
+  .weekly-practice-summary {
+    width: 100%;
+  }
+
+  .weekly-calendar {
+    gap: 4px;
+  }
+
+  .weekly-day {
+    padding: 8px 2px;
+  }
+
+  .weekly-day > small {
+    font-size: .54rem;
+  }
+
+  .history-list-actions {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .quick-start-week {
+    display: grid;
+    gap: 3px;
+  }
+
+  .quick-start-week strong {
+    text-align: left;
+  }
+
+  .weekly-practice-summary {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .weekly-practice-summary > div {
+    padding: 8px 4px;
+  }
+
+  .weekly-calendar {
+    grid-template-columns: repeat(7, minmax(34px, 1fr));
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .weekly-day {
+    min-width: 34px;
+  }
+
+  .weekly-day > small {
+    font-size: 0;
+  }
+
+  .weekly-day.practiced > small::after {
+    content: "•";
+    font-size: 1rem;
+  }
+
+  .history-export-note {
+    text-align: left;
+  }
+}

@@ -89,6 +89,7 @@ const quickStartDuration = $("#quickStartDuration");
 const quickStartAverage = $("#quickStartAverage");
 const quickStartConfig = $("#quickStartConfig");
 const quickStartEnvironment = $("#quickStartEnvironment");
+const quickStartWeek = $("#quickStartWeek");
 const repeatLastSessionBtn = $("#repeatLastSessionBtn");
 const historyStatus = $("#historyStatus");
 const historyList = $("#historyList");
@@ -103,6 +104,13 @@ const historyLast7Days = $("#historyLast7Days");
 const historyTotalRounds = $("#historyTotalRounds");
 const historyCurrentStreak = $("#historyCurrentStreak");
 const historyPracticeDays = $("#historyPracticeDays");
+const weeklyCalendarRange = $("#weeklyCalendarRange");
+const weeklyPracticeDays = $("#weeklyPracticeDays");
+const weeklyPracticeSessions = $("#weeklyPracticeSessions");
+const weeklyPracticeTime = $("#weeklyPracticeTime");
+const weeklyCalendar = $("#weeklyCalendar");
+const exportCsvBtn = $("#exportCsvBtn");
+const exportJsonBtn = $("#exportJsonBtn");
 const cleanupTestSessionsBtn = $("#cleanupTestSessionsBtn");
 const retentionTrendCanvas = $("#retentionTrendChart");
 const bestRetentionTrendCanvas = $("#bestRetentionTrendChart");
@@ -835,6 +843,90 @@ function startOfWeekMonday(dateValue) {
   return date;
 }
 
+
+function currentWeekBounds(reference = new Date()) {
+  const start = startOfWeekMonday(reference);
+  const end = addLocalDays(start, 6);
+  end.setHours(23, 59, 59, 999);
+  return { start, end };
+}
+
+function sessionsInCurrentWeek(sessions) {
+  const { start, end } = currentWeekBounds();
+  return sessions.filter(session => {
+    const date = timestampToDate(session.startedAt);
+    return date && date >= start && date <= end;
+  });
+}
+
+function weeklyPracticeStats(sessions) {
+  const current = sessionsInCurrentWeek(sessions);
+  const practiceDays = new Set(
+    current.map(session => localDayKey(session.startedAt)).filter(Boolean)
+  ).size;
+  const practiceTime = current.reduce(
+    (sum, session) => sum + (Number(session.durationSeconds) || 0),
+    0
+  );
+
+  return {
+    sessions: current.length,
+    practiceDays,
+    practiceTime,
+    current
+  };
+}
+
+function renderWeeklyPractice(sessions) {
+  const { start, end } = currentWeekBounds();
+  const stats = weeklyPracticeStats(sessions);
+
+  weeklyPracticeDays.textContent = stats.practiceDays;
+  weeklyPracticeSessions.textContent = stats.sessions;
+  weeklyPracticeTime.textContent = formatLongDuration(stats.practiceTime);
+
+  const rangeFormatter = new Intl.DateTimeFormat("es-MX", {
+    day: "numeric",
+    month: "short"
+  });
+  weeklyCalendarRange.textContent =
+    `${rangeFormatter.format(start)} – ${rangeFormatter.format(end)}`;
+
+  const counts = new Map();
+  stats.current.forEach(session => {
+    const key = localDayKey(session.startedAt);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+
+  const dayFormatter = new Intl.DateTimeFormat("es-MX", { weekday: "short" });
+  weeklyCalendar.innerHTML = "";
+
+  for (let offset = 0; offset < 7; offset += 1) {
+    const date = addLocalDays(start, offset);
+    const key = localDayKey(date);
+    const count = counts.get(key) || 0;
+
+    const cell = document.createElement("div");
+    cell.className = `weekly-day${count ? " practiced" : ""}`;
+    cell.setAttribute(
+      "aria-label",
+      `${dayFormatter.format(date)} ${date.getDate()}: ${count} sesión${count === 1 ? "" : "es"}`
+    );
+
+    const day = document.createElement("span");
+    day.textContent = dayFormatter.format(date).replace(".", "");
+
+    const number = document.createElement("strong");
+    number.textContent = String(date.getDate());
+
+    const marker = document.createElement("small");
+    marker.textContent = count ? `${count} sesión${count === 1 ? "" : "es"}` : "—";
+
+    cell.append(day, number, marker);
+    weeklyCalendar.appendChild(cell);
+  }
+}
+
 function isTestSession(session) {
   return session?.testMode === true ||
     (Number(session?.breathsPerRound) === 3 && Number(session?.plannedRounds) === 2);
@@ -1365,9 +1457,14 @@ function renderFilteredHistory() {
 
   const filtered = filterSessionsByHistoryPeriod(lastLoadedSessions);
   renderHistorySummary(filtered, lastLoadedSessions);
+  renderWeeklyPractice(lastLoadedSessions);
   renderHistoryList(filtered);
   renderHistoryCharts(filtered);
   renderTestCleanupControl(lastLoadedSessions);
+
+  const hasSessions = lastLoadedSessions.length > 0;
+  exportCsvBtn.disabled = !hasSessions;
+  exportJsonBtn.disabled = !hasSessions;
 
   const periodText = historyPeriodLabel();
   if (historyListCaption) {
@@ -1403,8 +1500,11 @@ async function loadHistory() {
     lastLoadedSessions = [];
     selectedHistorySession = null;
     renderHistorySummary([], []);
+    renderWeeklyPractice([]);
     destroyHistoryCharts();
     renderTestCleanupControl([]);
+    exportCsvBtn.disabled = true;
+    exportJsonBtn.disabled = true;
     historyList.innerHTML =
       '<p class="muted">No fue posible cargar el historial.</p>';
     historyStatus.textContent = "Error al consultar Firestore.";
@@ -1503,6 +1603,7 @@ function renderQuickStart(session) {
     quickStartEmpty.classList.remove("hidden");
     quickStartContent.classList.add("hidden");
     repeatLastSessionBtn.disabled = true;
+    quickStartWeek.textContent = "0 días · 0 sesiones";
     return;
   }
 
@@ -1539,8 +1640,13 @@ async function loadQuickStart() {
   quickStartDate.textContent = "Cargando…";
 
   try {
-    const sessions = await listCompletedSessions(currentUser.uid, 1);
+    const sessions = await listCompletedSessions(currentUser.uid, 20);
     renderQuickStart(sessions[0] || null);
+
+    const week = weeklyPracticeStats(sessions);
+    quickStartWeek.textContent =
+      `${week.practiceDays} día${week.practiceDays === 1 ? "" : "s"} · ` +
+      `${week.sessions} sesión${week.sessions === 1 ? "" : "es"}`;
   } catch (error) {
     console.warn("No fue posible cargar la última práctica:", error);
     latestCompletedSession = null;
@@ -1552,6 +1658,137 @@ async function loadQuickStart() {
       <span>Puedes seguir configurando y realizando sesiones normalmente.</span>
     `;
   }
+}
+
+
+function exportTimestamp(value) {
+  const date = timestampToDate(value);
+  return date ? date.toISOString() : null;
+}
+
+function normalizedSessionForExport(session) {
+  return {
+    id: session.id || session.clientSessionId || null,
+    status: session.status || null,
+    startedAt: exportTimestamp(session.startedAt),
+    endedAt: exportTimestamp(session.endedAt),
+    durationSeconds: Number(session.durationSeconds) || 0,
+    breathsPerRound: Number(session.breathsPerRound) || 0,
+    plannedRounds: Number(session.plannedRounds) || 0,
+    completedRounds: Number(session.completedRounds) || 0,
+    pace: session.pace || null,
+    sessionPreset: session.sessionPreset || null,
+    interRoundPauseSeconds: Number(session.interRoundPauseSeconds) || 0,
+    voiceCountInterval: session.voiceCountInterval ?? null,
+    ambientMode: session.ambientMode || null,
+    ambientVolume: session.ambientVolume ?? null,
+    focusMode: session.focusMode ?? null,
+    keepScreenAwake: session.keepScreenAwake ?? null,
+    voiceEnabled: session.voiceEnabled ?? null,
+    voiceVolume: session.voiceVolume ?? null,
+    voiceName: session.voiceName || null,
+    breathingSoundEnabled: session.breathingSoundEnabled ?? null,
+    breathingSoundVolume: session.breathingSoundVolume ?? null,
+    retentionsSeconds: Array.isArray(session.retentionsSeconds)
+      ? session.retentionsSeconds.map(Number).filter(Number.isFinite)
+      : [],
+    averageRetentionSeconds: Number(session.averageRetentionSeconds) || 0,
+    bestRetentionSeconds: Number(session.bestRetentionSeconds) || 0
+  };
+}
+
+function downloadTextFile(filename, text, type) {
+  const blob = new Blob([text], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportDateStamp() {
+  const now = new Date();
+  return [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0")
+  ].join("-");
+}
+
+function csvEscape(value) {
+  const text = value === null || value === undefined ? "" : String(value);
+  return `"${text.replaceAll('"', '""')}"`;
+}
+
+function exportHistoryCsv() {
+  if (!lastLoadedSessions.length) return;
+
+  const rows = lastLoadedSessions.map(normalizedSessionForExport);
+  const headers = [
+    "inicio",
+    "duracion_segundos",
+    "respiraciones_por_vuelta",
+    "vueltas_planeadas",
+    "vueltas_completadas",
+    "ritmo",
+    "preset",
+    "pausa_segundos",
+    "ambiente",
+    "voz",
+    "sonido_respiracion",
+    "modo_enfoque",
+    "retencion_promedio_segundos",
+    "mayor_retencion_segundos",
+    "retenciones_por_vuelta_segundos"
+  ];
+
+  const lines = [
+    headers.map(csvEscape).join(","),
+    ...rows.map(session => [
+      session.startedAt,
+      session.durationSeconds,
+      session.breathsPerRound,
+      session.plannedRounds,
+      session.completedRounds,
+      session.pace,
+      session.sessionPreset,
+      session.interRoundPauseSeconds,
+      session.ambientMode,
+      session.voiceEnabled,
+      session.breathingSoundEnabled,
+      session.focusMode,
+      session.averageRetentionSeconds,
+      session.bestRetentionSeconds,
+      session.retentionsSeconds.join(" | ")
+    ].map(csvEscape).join(","))
+  ];
+
+  downloadTextFile(
+    `respiracion-guiada-historial-${exportDateStamp()}.csv`,
+    "\uFEFF" + lines.join("\r\n"),
+    "text/csv;charset=utf-8"
+  );
+}
+
+function exportHistoryJson() {
+  if (!lastLoadedSessions.length) return;
+
+  const payload = {
+    app: "Respiración Guiada",
+    version: "2.25",
+    exportedAt: new Date().toISOString(),
+    note: "Respaldo de las sesiones cargadas en el historial. No contiene contraseña ni credenciales de Firebase.",
+    sessions: lastLoadedSessions.map(normalizedSessionForExport)
+  };
+
+  downloadTextFile(
+    `respiracion-guiada-respaldo-${exportDateStamp()}.json`,
+    JSON.stringify(payload, null, 2),
+    "application/json;charset=utf-8"
+  );
 }
 
 async function openHistory() {
@@ -1888,6 +2125,9 @@ registerForm.addEventListener("submit", async event => {
 });
 
 logoutBtn.addEventListener("click", async () => {
+  const confirmed = window.confirm("¿Quieres cerrar tu sesión?");
+  if (!confirmed) return;
+
   try {
     engine.stop(false);
     await logoutUser();
@@ -1915,6 +2155,9 @@ repeatLastSessionBtn.addEventListener("click", () => {
 });
 
 refreshHistoryBtn.addEventListener("click", loadHistory);
+
+exportCsvBtn.addEventListener("click", exportHistoryCsv);
+exportJsonBtn.addEventListener("click", exportHistoryJson);
 
 historyPeriodButtons.forEach(button => {
   button.addEventListener("click", () => {

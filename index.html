@@ -34,7 +34,7 @@
           <span id="connectionStatus" class="connection-status">En línea</span>
           <span id="pendingSyncCount" class="pending-sync-count"></span>
         </div>
-        <div id="appVersion" class="app-version" aria-label="Versión de la aplicación">v2.24</div>
+        <div id="appVersion" class="app-version" aria-label="Versión de la aplicación">v2.25 RC</div>
       </div>
       <div class="user-actions">
         <span id="roleBadge" class="role-badge hidden">ADMIN</span>
@@ -154,6 +154,25 @@
         <div class="history-stat-card"><span>Días de práctica</span><strong id="historyPracticeDays">0</strong></div>
       </div>
 
+      <div class="card weekly-practice-card">
+        <div class="weekly-practice-header">
+          <div>
+            <p class="eyebrow">Constancia</p>
+            <h2>Esta semana</h2>
+            <p id="weeklyCalendarRange" class="muted">Semana actual</p>
+          </div>
+          <div class="weekly-practice-summary">
+            <div><span>Días</span><strong id="weeklyPracticeDays">0</strong></div>
+            <div><span>Sesiones</span><strong id="weeklyPracticeSessions">0</strong></div>
+            <div><span>Tiempo</span><strong id="weeklyPracticeTime">0 s</strong></div>
+          </div>
+        </div>
+        <div id="weeklyCalendar" class="weekly-calendar" aria-label="Calendario semanal de práctica"></div>
+        <p class="field-help weekly-practice-note">
+          La constancia representa días con práctica; no establece metas de tiempo de retención.
+        </p>
+      </div>
+
       <div class="history-charts-grid">
         <div class="card chart-card">
           <div class="chart-card-header">
@@ -219,11 +238,17 @@
             <p id="historyListCaption" class="history-list-caption">Mostrando todas las sesiones cargadas.</p>
           </div>
           <div class="history-list-actions">
+            <button id="exportCsvBtn" class="secondary-btn compact-btn" type="button">Exportar CSV</button>
+            <button id="exportJsonBtn" class="secondary-btn compact-btn" type="button">Respaldo JSON</button>
             <button id="cleanupTestSessionsBtn" class="danger-btn compact-btn hidden" type="button">Eliminar pruebas</button>
             <button id="refreshHistoryBtn" class="secondary-btn compact-btn" type="button">Actualizar</button>
           </div>
         </div>
         <div id="historyList" class="history-list"><p class="muted">Cargando sesiones…</p></div>
+        <p class="field-help history-export-note">
+          CSV y JSON exportan las sesiones actualmente cargadas en el historial (hasta 250).
+          El archivo se genera en tu dispositivo y no modifica Firebase.
+        </p>
       </div>
 
       <div id="sessionDetailCard" class="card session-detail-card hidden">
@@ -324,6 +349,11 @@
             <span class="metric-label">Última configuración usada</span>
             <strong id="quickStartConfig">—</strong>
             <span id="quickStartEnvironment" class="quick-start-secondary">—</span>
+          </div>
+
+          <div class="quick-start-week" aria-label="Constancia de esta semana">
+            <span>Esta semana</span>
+            <strong id="quickStartWeek">0 días · 0 sesiones</strong>
           </div>
 
           <button id="repeatLastSessionBtn" class="primary-btn quick-start-repeat" type="button">
